@@ -517,7 +517,7 @@ def rand_in(r):
         if inside(p) < 1.0: return p
 def neurons(name, count, seed):
     r = np.random.RandomState(seed); paths = []
-    def walk(p, d, n, step=0.0095, wob=0.13):
+    def walk(p, d, n, step=0.0095, wob=0.075):
         pts = [p.copy()]
         for k in range(n):
             d = d + r.normal(size=3) * wob; d /= np.linalg.norm(d)
@@ -532,18 +532,18 @@ def neurons(name, count, seed):
         trunk = walk(p, d, r.randint(45, 95)); paths.append(trunk)
         for j in range(r.randint(1, 4)):
             q = trunk[r.randint(5, len(trunk) - 1)]; dd = r.normal(size=3); dd /= np.linalg.norm(dd)
-            paths.append(walk(q, dd, r.randint(12, 35), 0.008, 0.22))
+            paths.append(walk(q, dd, r.randint(12, 35), 0.008, 0.14))
     V = []; F = []; UV = []; COL = []
-    pal = [(0.7, 0.85, 1.0), (0.42, 0.22, 1.0), (1.0, 0.55, 0.12), (0.12, 0.55, 1.0)]
+    pal = [(0.10, 0.62, 1.0), (0.05, 0.75, 1.0), (0.30, 0.85, 1.0), (0.08, 0.45, 1.0)]
     for i, P_ in enumerate(paths):
-        phase = r.uniform(); col = pal[r.choice(4, p=[0.12, 0.32, 0.24, 0.32])]; rad = r.uniform(0.0022, 0.0048)
+        phase = r.uniform(); col = pal[r.choice(4, p=[0.12, 0.32, 0.24, 0.32])]; rad = r.uniform(0.0014, 0.0030)
         base = len(V); n = len(P_); sides = 4
         for j in range(n):
             t = P_[min(j + 1, n - 1)] - P_[max(j - 1, 0)]; t /= (np.linalg.norm(t) + 1e-9)
             a = np.cross(t, [0.3, 0.5, 0.81]); a /= np.linalg.norm(a); b = np.cross(t, a)
             for k in range(sides):
                 th = k / sides * 2 * math.pi
-                V.append(tuple(P_[j] + (a * math.cos(th) + b * math.sin(th)) * rad))
+                V.append(tuple(P_[j] + (a * math.cos(th) + b * math.sin(th)) * rad * (1.0 - 0.65 * j / (n - 1))))
                 UV.append((j / (n - 1), phase)); COL.append(col)
         for j in range(n - 1):
             for k in range(sides):
@@ -569,20 +569,56 @@ x = M('MULTIPLY', sp.outputs['X'], vb=2.5)
 x = M('SUBTRACT', x, M('MULTIPLY', Tn.outputs[0], vb=1.1))
 x = M('ADD', x, M('MULTIPLY', sp.outputs['Y'], vb=9.0))
 fr_ = M('FRACT', x); pulse = M('POWER', M('SUBTRACT', va=1.0, b=fr_), vb=28.0)
-strength = M('MULTIPLY', M('ADD', M('MULTIPLY', pulse, vb=14.0), vb=0.7), Bn.outputs[0])
+strength = M('MULTIPLY', M('ADD', M('MULTIPLY', pulse, vb=4.0), vb=0.25), Bn.outputs[0])
 att = nt.nodes.new('ShaderNodeAttribute'); att.attribute_name = 'ncol'
-emn = nt.nodes.new('ShaderNodeEmission'); nt.links.new(att.outputs['Color'], emn.inputs['Color']); nt.links.new(strength, emn.inputs['Strength'])
+mixc = nt.nodes.new('ShaderNodeMix'); mixc.data_type = 'RGBA'; nt.links.new(M('MINIMUM', M('MULTIPLY', pulse, vb=0.7), vb=1.0), mixc.inputs['Factor'])
+nt.links.new(att.outputs['Color'], mixc.inputs[6]); mixc.inputs[7].default_value = (0.85, 0.97, 1.0, 1)
+emn = nt.nodes.new('ShaderNodeEmission'); nt.links.new(mixc.outputs[2], emn.inputs['Color']); nt.links.new(strength, emn.inputs['Strength'])
 nt.links.new(emn.outputs[0], out.inputs[0])
-brain = neurons('neurons', 230, 11); brain.data.materials.append(neuM); brain.location = BR
+brain = neurons('neurons', 70, 11); brain.data.materials.append(neuM); brain.location = BR
 # brain membrane: translucent gold shell around the neuropils
 memM = bpy.data.materials.new('membrane'); nt, out = nodes(memM)
-lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.35
 mb = nt.nodes.new('ShaderNodeValue'); mb.name = 'B'
-mm = nt.nodes.new('ShaderNodeMath'); mm.operation = 'MULTIPLY'; nt.links.new(lw.outputs['Facing'], mm.inputs[0]); nt.links.new(mb.outputs[0], mm.inputs[1])
-mm2 = nt.nodes.new('ShaderNodeMath'); mm2.operation = 'MULTIPLY'; mm2.inputs[1].default_value = 0.18; nt.links.new(mm.outputs[0], mm2.inputs[0])
-eme = nt.nodes.new('ShaderNodeEmission'); eme.inputs[0].default_value = (0.55, 0.4, 1.0, 1); nt.links.new(mm2.outputs[0], eme.inputs[1])
-trm = nt.nodes.new('ShaderNodeBsdfTransparent'); adm = nt.nodes.new('ShaderNodeAddShader')
-nt.links.new(eme.outputs[0], adm.inputs[0]); nt.links.new(trm.outputs[0], adm.inputs[1]); nt.links.new(adm.outputs[0], out.inputs[0])
+mt = nt.nodes.new('ShaderNodeValue'); mt.name = 'T'
+tc = nt.nodes.new('ShaderNodeTexCoord')
+vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.feature = 'DISTANCE_TO_EDGE'; vor.inputs['Scale'].default_value = 14.0
+try: vor.inputs['Randomness'].default_value = 0.9
+except Exception: pass
+nt.links.new(tc.outputs['Object'], vor.inputs['Vector'])
+vor2 = nt.nodes.new('ShaderNodeTexVoronoi'); vor2.feature = 'DISTANCE_TO_EDGE'; vor2.inputs['Scale'].default_value = 110.0
+nt.links.new(tc.outputs['Object'], vor2.inputs['Vector'])
+def MM(op, a=None, b=None, va=None, vb=None):
+    n = nt.nodes.new('ShaderNodeMath'); n.operation = op
+    if a is not None: nt.links.new(a, n.inputs[0])
+    elif va is not None: n.inputs[0].default_value = va
+    if b is not None: nt.links.new(b, n.inputs[1])
+    elif vb is not None: n.inputs[1].default_value = vb
+    return n.outputs[0]
+# thin bright lines where distance to cell edge is ~0
+line1 = MM('POWER', MM('MAXIMUM', MM('SUBTRACT', va=1.0, b=MM('DIVIDE', vor.outputs['Distance'], vb=0.06)), vb=0.0), vb=2.0)
+line2 = MM('MULTIPLY', MM('POWER', MM('MAXIMUM', MM('SUBTRACT', va=1.0, b=MM('DIVIDE', vor2.outputs['Distance'], vb=0.03)), vb=0.0), vb=2.0), vb=0.0)
+veins = MM('ADD', line1, line2)
+# travelling electric flicker
+nz = nt.nodes.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 7.0
+off = nt.nodes.new('ShaderNodeVectorMath'); off.operation = 'ADD'; nt.links.new(tc.outputs['Object'], off.inputs[0])
+cmb = nt.nodes.new('ShaderNodeCombineXYZ'); nt.links.new(MM('MULTIPLY', mt.outputs[0], vb=0.9), cmb.inputs[0]); nt.links.new(MM('MULTIPLY', mt.outputs[0], vb=0.5), cmb.inputs[2])
+nt.links.new(cmb.outputs[0], off.inputs[1]); nt.links.new(off.outputs[0], nz.inputs['Vector'])
+flick = MM('POWER', MM('MULTIPLY', nz.outputs['Fac'], vb=1.7), vb=3.0)
+lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.4
+rimw = MM('ADD', MM('MULTIPLY', lw.outputs['Facing'], vb=0.6), vb=0.4)
+geo = nt.nodes.new('ShaderNodeNewGeometry'); front = MM('SUBTRACT', va=1.0, b=geo.outputs['Backfacing'])
+estr = MM('MULTIPLY', MM('MULTIPLY', MM('MULTIPLY', MM('MULTIPLY', veins, MM('ADD', MM('MULTIPLY', flick, vb=3.0), vb=0.35)), rimw), mb.outputs[0]), front)
+eme = nt.nodes.new('ShaderNodeEmission'); eme.inputs[0].default_value = (0.0, 0.5, 1.0, 1); nt.links.new(estr, eme.inputs[1])
+# faint cyan haze in the cells so the shell reads as a volume, mostly see-through
+haze = nt.nodes.new('ShaderNodeEmission'); haze.inputs[0].default_value = (0.02, 0.25, 0.55, 1)
+nt.links.new(MM('MULTIPLY', MM('MULTIPLY', MM('MULTIPLY', lw.outputs['Facing'], vb=0.12), mb.outputs[0]), front), haze.inputs[1])
+glass = nt.nodes.new('ShaderNodeBsdfGlossy'); glass.inputs['Roughness'].default_value = 0.15; glass.inputs['Color'].default_value = (0.12, 0.25, 0.35, 1)
+trm = nt.nodes.new('ShaderNodeBsdfTransparent')
+mixg = nt.nodes.new('ShaderNodeMixShader'); nt.links.new(MM('MULTIPLY', lw.outputs['Fresnel'], vb=0.35), mixg.inputs[0])
+nt.links.new(trm.outputs[0], mixg.inputs[1]); nt.links.new(glass.outputs[0], mixg.inputs[2])
+ad1 = nt.nodes.new('ShaderNodeAddShader'); nt.links.new(eme.outputs[0], ad1.inputs[0]); nt.links.new(haze.outputs[0], ad1.inputs[1])
+ad2 = nt.nodes.new('ShaderNodeAddShader'); nt.links.new(ad1.outputs[0], ad2.inputs[0]); nt.links.new(mixg.outputs[0], ad2.inputs[1])
+nt.links.new(ad2.outputs[0], out.inputs[0])
 for i, (c, r) in enumerate(blobs):
     o = ellipsoid(f'neuropil{i}', BR + Vector(c), tuple(x * 1.06 for x in r), memM, 48, 24); o.visible_shadow = False
 # synapse sparks inside + sparks that drift out when the head opens
@@ -595,8 +631,8 @@ def sparks(name, count, seed, spread, col, s):
         for f in ((0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4), (2, 0, 5), (1, 2, 5), (3, 1, 5), (0, 3, 5)): F.append(tuple(base + k for k in f))
     m = emission(name + 'M', col, 0.0); m.node_tree.nodes['Emission'].name = 'E'
     o = mesh_obj(name, V, F, m, smooth=False); o.visible_shadow = False; return o
-syn = sparks('synapses', 450, 21, None, (1.0, 0.85, 0.55), 0.0022); syn.location = BR
-dust = sparks('dust', 260, 22, 0.55, (1.0, 0.8, 0.45), 0.006); dust.location = BR
+syn = sparks('synapses', 140, 21, None, (0.6, 0.92, 1.0), 0.0022); syn.location = BR
+dust = sparks('dust', 260, 22, 0.55, (0.45, 0.85, 1.0), 0.006); dust.location = BR
 
 FLY = bpy.data.objects.new('fly_root', None); link(FLY); FLY.scale = (FS, FS, FS)
 for o in set(bpy.data.objects) - _before:
@@ -607,7 +643,7 @@ def area(name, loc, target, col, size):
     L = bpy.data.lights.new(name, 'SPOT'); L.shadow_soft_size = size * 0.4; L.spot_size = math.radians(34); L.spot_blend = 0.5; L.color = col; L.energy = 0
     o = link(bpy.data.objects.new(name, L)); o.location = loc
     o.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler(); return L
-purple = area('purple', (-3.2, -4.6, 3.6), HEAD_W, (0.48, 0.3, 1.0), 3.0)
+purple = area('purple', (-3.2, -4.6, 3.6), HEAD_W, (0.2, 0.65, 1.0), 3.0)
 gold = area('gold', (3.0, -4.3, 1.6), HEAD_W, (1.0, 0.66, 0.3), 2.4)
 rim = area('rim', (0.0, 1.6, 4.6), HEAD_W, (0.5, 0.75, 1.0), 2.5)
 
@@ -677,7 +713,8 @@ def set_time(t):
     neuM.node_tree.nodes['T'].outputs[0].default_value = t
     neuM.node_tree.nodes['B'].outputs[0].default_value = bval
     memM.node_tree.nodes['B'].outputs[0].default_value = bval
-    syn.data.materials[0].node_tree.nodes['E'].inputs[1].default_value = 18.0 * bval * (0.7 + 0.3 * math.sin(t * 9))
+    memM.node_tree.nodes['T'].outputs[0].default_value = t
+    syn.data.materials[0].node_tree.nodes['E'].inputs[1].default_value = 6.0 * bval * (0.7 + 0.3 * math.sin(t * 9))
     dk = smooth01((t - OPEN0 - 0.4) / 3.0) * (1 - smooth01((t - CLOSE0) / 2.0))
     dust.scale = (0.15 + 0.85 * dk,) * 3; dust.rotation_euler = (t * 0.15, t * 0.22, t * 0.1)
     dust.data.materials[0].node_tree.nodes['E'].inputs[1].default_value = 25.0 * dk
