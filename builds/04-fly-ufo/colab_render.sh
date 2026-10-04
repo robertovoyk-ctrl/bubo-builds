@@ -8,6 +8,9 @@ if [ ! -x /content/blender/blender ]; then
   mkdir -p /content/blender && tar -xf /tmp/b.tar.xz -C /content/blender --strip-components=1
 fi
 pip -q install soundfile >/dev/null
+BPY=$(ls /content/blender/5.0/python/bin/python3* | head -1)
+"$BPY" -c "import PIL" 2>/dev/null || { "$BPY" -m ensurepip -q >/dev/null 2>&1; "$BPY" -m pip -q install pillow >/dev/null; }
+"$BPY" -c "import PIL; print('pillow ok')"
 python3 audio.py
 BUBO_GPU=1 /content/blender/blender -b --python scene.py -- full 0:672:1 ${RES:-608} ${SPP:-10} frames > render.log 2>&1 &
 PID=$!
