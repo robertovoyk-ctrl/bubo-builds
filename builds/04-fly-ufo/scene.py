@@ -703,6 +703,8 @@ def set_time(t):
         e.rotation_euler = (r0.x, r0.y, r0.z + s * 0.45 * op)
     ramp = smooth01((t - 10.5) / 3.5)
     purple.energy = 550 * ramp; gold.energy = 500 * ramp; rim.energy = 650 * ramp
+    cw = smooth01((t - 14.8) / 1.2) * (1 - smooth01((t - 24.1) / 1.2))   # key light turns cyan only while the brain is out
+    purple.color = tuple(p0 * (1 - cw) + p1 * cw for p0, p1 in zip((0.48, 0.3, 1.0), (0.2, 0.65, 1.0)))
     beamL.energy = 5000 * (1 - 0.9 * ramp); underL.energy = 1200 * (1 - 0.9 * ramp)
     bg.inputs['Strength'].default_value = 1.0 - 0.85 * ramp; sun.energy = 0.55 * (1 - 0.7 * ramp)
     shaftM.node_tree.nodes['K'].inputs[1].default_value *= (1 - smooth01((t - 8.0) / 2.5))
