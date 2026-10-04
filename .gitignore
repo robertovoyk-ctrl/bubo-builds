@@ -1,0 +1,21 @@
+# secrets: never commit
+*.key
+*_key.txt
+*key*.txt
+.env
+.env.*
+secrets/
+
+# render output and heavy media
+fr/
+frames/
+full/
+st/
+*.mp4
+*.wav
+*.mov
+samples/
+node_modules/
+fonts/
+__pycache__/
+.DS_Store

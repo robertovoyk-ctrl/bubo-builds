@@ -1,0 +1,1067 @@
+{
+ "step": 0.17,
+ "t0": 0.9,
+ "events": [
+  {
+   "t": 0.9,
+   "step": 0,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.07,
+   "step": 1,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.24,
+   "step": 2,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.41,
+   "step": 3,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.58,
+   "step": 4,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.75,
+   "step": 5,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 1.92,
+   "step": 6,
+   "note": "D5",
+   "midi": 74,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.09,
+   "step": 7,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.26,
+   "step": 8,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.26,
+   "step": 8,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.43,
+   "step": 9,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.6,
+   "step": 10,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.77,
+   "step": 11,
+   "note": "C4",
+   "midi": 60,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 2.94,
+   "step": 12,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.11,
+   "step": 13,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.28,
+   "step": 14,
+   "note": "E2",
+   "midi": 40,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.28,
+   "step": 14,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.45,
+   "step": 15,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.62,
+   "step": 16,
+   "note": "G#3",
+   "midi": 56,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.79,
+   "step": 17,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 3.96,
+   "step": 18,
+   "note": "G#4",
+   "midi": 68,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.13,
+   "step": 19,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.3,
+   "step": 20,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.3,
+   "step": 20,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.47,
+   "step": 21,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.64,
+   "step": 22,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.81,
+   "step": 23,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 4.98,
+   "step": 24,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 5.15,
+   "step": 25,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 5.32,
+   "step": 26,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 5.49,
+   "step": 27,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 5.66,
+   "step": 28,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 5.83,
+   "step": 29,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.0,
+   "step": 30,
+   "note": "D5",
+   "midi": 74,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.17,
+   "step": 31,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.34,
+   "step": 32,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.34,
+   "step": 32,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.51,
+   "step": 33,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.68,
+   "step": 34,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 6.85,
+   "step": 35,
+   "note": "C4",
+   "midi": 60,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.02,
+   "step": 36,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.19,
+   "step": 37,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.36,
+   "step": 38,
+   "note": "E2",
+   "midi": 40,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.36,
+   "step": 38,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.53,
+   "step": 39,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.7,
+   "step": 40,
+   "note": "G#3",
+   "midi": 56,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 7.87,
+   "step": 41,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.04,
+   "step": 42,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.21,
+   "step": 43,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.38,
+   "step": 44,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.38,
+   "step": 44,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.55,
+   "step": 45,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 8.72,
+   "step": 46,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.06,
+   "step": 48,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.23,
+   "step": 49,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.4,
+   "step": 50,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.57,
+   "step": 51,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.74,
+   "step": 52,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 9.91,
+   "step": 53,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.08,
+   "step": 54,
+   "note": "D5",
+   "midi": 74,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.25,
+   "step": 55,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.42,
+   "step": 56,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.42,
+   "step": 56,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.59,
+   "step": 57,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.76,
+   "step": 58,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 10.93,
+   "step": 59,
+   "note": "C4",
+   "midi": 60,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.1,
+   "step": 60,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.27,
+   "step": 61,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.44,
+   "step": 62,
+   "note": "E2",
+   "midi": 40,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.44,
+   "step": 62,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.61,
+   "step": 63,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.78,
+   "step": 64,
+   "note": "G#3",
+   "midi": 56,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 11.95,
+   "step": 65,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.12,
+   "step": 66,
+   "note": "G#4",
+   "midi": 68,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.29,
+   "step": 67,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.46,
+   "step": 68,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.46,
+   "step": 68,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.63,
+   "step": 69,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.8,
+   "step": 70,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 12.97,
+   "step": 71,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.14,
+   "step": 72,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.31,
+   "step": 73,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.48,
+   "step": 74,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.65,
+   "step": 75,
+   "note": "D#5",
+   "midi": 75,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.82,
+   "step": 76,
+   "note": "E5",
+   "midi": 76,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 13.99,
+   "step": 77,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.16,
+   "step": 78,
+   "note": "D5",
+   "midi": 74,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.33,
+   "step": 79,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.1785,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.5,
+   "step": 80,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.5,
+   "step": 80,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.67,
+   "step": 81,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 14.84,
+   "step": 82,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.01,
+   "step": 83,
+   "note": "C4",
+   "midi": 60,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.18,
+   "step": 84,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.35,
+   "step": 85,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.52,
+   "step": 86,
+   "note": "E2",
+   "midi": 40,
+   "player": "octo",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.52,
+   "step": 86,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 1.07,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.69,
+   "step": 87,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 0.9,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 15.86,
+   "step": 88,
+   "note": "G#3",
+   "midi": 56,
+   "player": "octo",
+   "ring": 0.73,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.03,
+   "step": 89,
+   "note": "E4",
+   "midi": 64,
+   "player": "octo",
+   "ring": 0.56,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.2,
+   "step": 90,
+   "note": "C5",
+   "midi": 72,
+   "player": "fly",
+   "ring": 0.39,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.37,
+   "step": 91,
+   "note": "B4",
+   "midi": 71,
+   "player": "fly",
+   "ring": 0.22,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.54,
+   "step": 92,
+   "note": "A2",
+   "midi": 45,
+   "player": "octo",
+   "ring": 2.6,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.54,
+   "step": 92,
+   "note": "A4",
+   "midi": 69,
+   "player": "fly",
+   "ring": 2.6,
+   "vel": 0.85,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.71,
+   "step": 93,
+   "note": "E3",
+   "midi": 52,
+   "player": "octo",
+   "ring": 2.43,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  },
+  {
+   "t": 16.88,
+   "step": 94,
+   "note": "A3",
+   "midi": 57,
+   "player": "octo",
+   "ring": 2.26,
+   "vel": 0.7,
+   "key_hold": 0.1445
+  }
+ ],
+ "end": 19.48
+}
