@@ -427,9 +427,9 @@ for o, c, d, key in PANELS:
 prob = tube('proboscis', [HEAD_C + Vector((0, -0.08, -0.31)), HEAD_C + Vector((0, -0.1, -0.35))], 0.03, 0.035, dark)
 
 # wings: thin film, veins from a generated texture
-from PIL import Image, ImageDraw, ImageFilter
 wimg = os.path.join(HERE, 'wing.png')
 if not os.path.exists(wimg):
+    from PIL import Image, ImageDraw, ImageFilter
     W, Hh = 1400, 560; im = Image.new('L', (W, Hh), 0); d = ImageDraw.Draw(im)
     def P(u, v): return (u * W, (0.5 - v) * Hh)
     for path in [[(0.02, 0.0), (0.4, 0.18), (0.75, 0.28), (0.98, 0.3)], [(0.02, 0.0), (0.45, 0.06), (0.8, 0.1), (0.99, 0.12)],
