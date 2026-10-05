@@ -308,10 +308,38 @@ cra = nt.nodes.new('ShaderNodeValToRGB'); cra.color_ramp.elements[0].position = 
 cra.color_ramp.elements[1].position = 0.6; cra.color_ramp.elements[1].color = (0.03, 0.02, 0.012, 1)
 nt.links.new(wva.outputs[0], cra.inputs[0]); nt.links.new(cra.outputs['Color'], p.inputs['Base Color']); nt.links.new(p.outputs[0], out.inputs[0])
 
+furM = bpy.data.materials.new('fur'); nt, out = nodes(furM)
+try:
+    hb_ = nt.nodes.new('ShaderNodeBsdfHairPrincipled')
+    for k_, v_ in (('Melanin', 0.82), ('Melanin Redness', 0.75), ('Roughness', 0.32), ('Radial Roughness', 0.3), ('Coat', 0.1)):
+        if k_ in hb_.inputs: hb_.inputs[k_].default_value = v_
+except Exception:
+    hb_ = nt.nodes.new('ShaderNodeBsdfPrincipled'); hb_.inputs['Base Color'].default_value = (0.09, 0.05, 0.02, 1)
+nt.links.new(hb_.outputs[0], out.inputs[0])
+_hr = np.random.RandomState(77)
+def add_fur(o, count, length, radius=0.0035, children=6, lean=(0.0, 0.6, 0.15), normal=0.8, clump=0.0):
+    o.data.materials.append(furM); slot = len(o.data.materials)
+    ps = o.modifiers.new('fur', 'PARTICLE_SYSTEM'); st = ps.particle_system.settings
+    st.type = 'HAIR'; st.count = count; st.emit_from = 'FACE'; st.use_emit_random = True
+    kk = (length / 4.0) / math.sqrt(normal ** 2 + lean[0] ** 2 + lean[1] ** 2 + lean[2] ** 2)   # hair length = 4 x |velocity|
+    st.use_advanced_hair = True; st.normal_factor = normal * kk; st.object_align_factor = tuple(x * kk for x in lean); st.factor_random = 0.25 * kk
+    st.material = slot; st.root_radius = 1.0; st.tip_radius = 0.05; st.radius_scale = radius; st.display_step = 2; st.render_step = 3
+    if children:
+        st.child_type = 'INTERPOLATED'; st.child_percent = 2; st.rendered_child_count = children
+        st.child_length = 0.85; st.child_length_threshold = 0.4; st.roughness_1 = 0.006; st.roughness_endpoint = 0.01; st.clump_factor = clump
+    ps.particle_system.seed = int(_hr.randint(1, 9999))
+    return ps
 thorax = ellipsoid('thorax', Vector((0, 0.15, 1.12)), (0.66, 0.82, 0.62), chitin)
+add_fur(thorax, 2600, 0.075, 0.004, 8, (0.0, 0.7, 0.25))
 scut = ellipsoid('scutellum', Vector((0, 0.82, 1.48)), (0.32, 0.26, 0.16), chitin)
-abd = ellipsoid('abdomen', Vector((0, 1.5, 0.98)), (0.58, 1.0, 0.52), abdM)
+add_fur(scut, 300, 0.05, 0.0035, 5, (0.0, 0.8, 0.2))
+abd = ellipsoid('abdomen', Vector((0, 1.5, 0.98)), (0.58, 1.0, 0.52), abdM, 96, 64)
+for v in abd.data.vertices:            # six tergites: each plate swells toward its rear edge, then steps in
+    u = (v.co.y / 1.0 + 1.0) * 3.0; f = u - math.floor(u)
+    k = 1.0 + 0.045 * f ** 2.2 - 0.02
+    v.co.x *= k; v.co.z *= k
 abd.rotation_euler = (math.radians(-10), 0, 0)
+add_fur(abd, 2200, 0.06, 0.0032, 7, (0.0, 0.9, 0.0))
 neck = ellipsoid('neck', Vector((0, -0.62, 1.28)), (0.2, 0.2, 0.2), dark)
 
 # compound eyes: voronoi facets, deep red, glossy
@@ -471,19 +499,66 @@ def wing(s):
     return o
 wing(-1); wing(1)
 
-# legs
+# legs: segmented like a real fly leg
+legM = bpy.data.materials.new('legchitin'); nt, out = nodes(legM)
+p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Roughness'].default_value = 0.42; p.inputs['Coat Weight'].default_value = 0.45; p.inputs['Coat Roughness'].default_value = 0.2
+tcl = nt.nodes.new('ShaderNodeTexCoord'); szl = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(tcl.outputs['Generated'], szl.inputs[0])
+def _M(op, a=None, b=None, va=None, vb=None, clamp=False):
+    n = nt.nodes.new('ShaderNodeMath'); n.operation = op; n.use_clamp = clamp
+    if a is not None: nt.links.new(a, n.inputs[0])
+    elif va is not None: n.inputs[0].default_value = va
+    if b is not None: nt.links.new(b, n.inputs[1])
+    elif vb is not None: n.inputs[1].default_value = vb
+    return n.outputs[0]
+zl = szl.outputs['Z']
+bandl = _M('MAXIMUM', _M('SUBTRACT', va=1.0, b=_M('DIVIDE', zl, vb=0.1), clamp=True), _M('SUBTRACT', va=1.0, b=_M('DIVIDE', _M('SUBTRACT', va=1.0, b=zl), vb=0.1), clamp=True))
+nzl = nt.nodes.new('ShaderNodeTexNoise'); nzl.inputs['Scale'].default_value = 25.0; nt.links.new(tcl.outputs['Object'], nzl.inputs['Vector'])
+cml = nt.nodes.new('ShaderNodeMix'); cml.data_type = 'RGBA'; nt.links.new(nzl.outputs['Fac'], cml.inputs['Factor'])
+cml.inputs[6].default_value = (0.07, 0.035, 0.014, 1); cml.inputs[7].default_value = (0.24, 0.13, 0.05, 1)
+cmb2 = nt.nodes.new('ShaderNodeMix'); cmb2.data_type = 'RGBA'; nt.links.new(bandl, cmb2.inputs['Factor'])
+nt.links.new(cml.outputs[2], cmb2.inputs[6]); cmb2.inputs[7].default_value = (0.025, 0.012, 0.006, 1)
+nt.links.new(cmb2.outputs[2], p.inputs['Base Color'])
+bpl = nt.nodes.new('ShaderNodeBump'); bpl.inputs['Strength'].default_value = 0.2; nzb = nt.nodes.new('ShaderNodeTexNoise'); nzb.inputs['Scale'].default_value = 120.0
+nt.links.new(tcl.outputs['Object'], nzb.inputs['Vector']); nt.links.new(nzb.outputs['Fac'], bpl.inputs['Height']); nt.links.new(bpl.outputs[0], p.inputs['Normal'])
+nt.links.new(p.outputs[0], out.inputs[0])
+def leg_seg(name, a, b, r0, r1, bulge=0.15, fur=(0, 0.0)):
+    L = (b - a).length; V = []; F = []; sides, rings = 14, 18
+    for j in range(rings + 1):
+        u = j / rings
+        neck = 1.0 - 0.3 * max(0.0, 1 - u / 0.1) ** 1.5 - 0.25 * max(0.0, (u - 0.9) / 0.1) ** 1.5
+        rr = (r0 + (r1 - r0) * u) * (1.0 + bulge * math.sin(math.pi * u) ** 0.8) * neck
+        for k in range(sides):
+            an = k / sides * 2 * math.pi; V.append((rr * math.cos(an), rr * 0.9 * math.sin(an), L * u))
+    for j in range(rings):
+        for k in range(sides):
+            F.append((j * sides + k, j * sides + (k + 1) % sides, (j + 1) * sides + (k + 1) % sides, (j + 1) * sides + k))
+    V.append((0, 0, 0)); V.append((0, 0, L)); c0, c1 = len(V) - 2, len(V) - 1
+    for k in range(sides):
+        F.append((c0, (k + 1) % sides, k)); F.append((c1, rings * sides + k, rings * sides + (k + 1) % sides))
+    o = mesh_obj(name, V, F, legM)
+    z = (b - a).normalized(); x = z.orthogonal().normalized(); y = z.cross(x)
+    o.matrix_world = Matrix(((x.x, y.x, z.x, a.x), (x.y, y.y, z.y, a.y), (x.z, y.z, z.z, a.z), (0, 0, 0, 1)))
+    if fur[0]: add_fur(o, fur[0], fur[1], 0.0026, 4, (0.0, 0.0, 0.9), 0.6)
+    return o
 for s in (-1, 1):
     for k, y in enumerate((-0.32, 0.12, 0.52)):
         hip = Vector((s * 0.36, y, 0.82)); spread = (-0.5, 0.0, 0.55)[k]
         knee = Vector((s * 0.78, y + spread * 0.6, 0.74))
         ankle = Vector((s * 1.02, y + spread * 1.0, 0.12)); foot = Vector((s * 1.2, y + spread * 1.25, 0.02))
-        def seg(a, b, n): return [a.lerp(b, i / n) for i in range(n)]
-        pts = seg(hip, knee, 6) + seg(knee, ankle, 10) + seg(ankle, foot, 4) + [foot]
-        tube(f'leg{s}{k}', pts, 0.095, 0.04, chitin, 12)
-        for i in range(16):   # leg bristles
-            q = pts[3 + i]; dirn = (pts[4 + i] - q).normalized()
-            out_ = dirn.cross(Vector((0, 0, 1))).normalized() * s
-            tube(f'lb{s}{k}{i}', [q, q + out_ * 0.05 + dirn * 0.06], 0.006, 0.002, dark, 4)
+        cox = hip.lerp(knee, 0.18)
+        leg_seg(f'coxa{s}{k}', hip, cox, 0.1, 0.085, 0.1, (60, 0.05))
+        leg_seg(f'femur{s}{k}', cox, knee, 0.085, 0.07, 0.22, (260, 0.07))
+        leg_seg(f'tibia{s}{k}', knee, ankle, 0.062, 0.05, 0.12, (240, 0.065))
+        ellipsoid(f'kneej{s}{k}', knee, (0.07, 0.07, 0.07), legM, 20, 10)
+        prev = ankle
+        for i in range(5):                                  # five tarsomeres, the first one longest
+            frac = (0.34, 0.2, 0.17, 0.15, 0.14)[i]
+            nxt = prev + (foot - ankle) * frac
+            leg_seg(f'tars{s}{k}{i}', prev, nxt, 0.045 - i * 0.004, 0.038 - i * 0.004, 0.18, (30, 0.04))
+            prev = nxt
+        d_ = (foot - ankle).normalized(); sd = d_.cross(Vector((0, 0, 1))).normalized()
+        for c in (-1, 1):                                   # tarsal claws
+            tube(f'claw{s}{k}{c}', [foot, foot + d_ * 0.05 + sd * c * 0.03, foot + d_ * 0.07 + sd * c * 0.035 - Vector((0, 0, 0.04))], 0.012, 0.002, dark, 6)
 
 # bristles: thorax macrochaetae + fine hairs on head and thorax
 def bristles(name, center, radii, count, length, upper=0.0, seed=1, thick=0.007):
@@ -502,8 +577,6 @@ def bristles(name, center, radii, count, length, upper=0.0, seed=1, thick=0.007)
             for k in range(4): F.append((base + j * 4 + k, base + j * 4 + (k + 1) % 4, base + (j + 1) * 4 + (k + 1) % 4, base + (j + 1) * 4 + k))
     return mesh_obj(name, V, F, dark)
 bristles('thorax_macro', Vector((0, 0.15, 1.12)), (0.66, 0.82, 0.62), 26, 0.42, 0.35, 3, 0.012)
-bristles('thorax_fine', Vector((0, 0.15, 1.12)), (0.66, 0.82, 0.62), 900, 0.07, 0.05, 4, 0.004)
-bristles('abd_fine', Vector((0, 1.5, 0.98)), (0.58, 1.0, 0.52), 700, 0.06, -0.2, 5, 0.0035)
 
 # ---------------------------------------------------------------- the brain
 BR = HEAD_C
@@ -686,6 +759,11 @@ def set_time(t):
     pos, tgt, lens, fs = cam_at(t)
     co.location = pos; co.rotation_euler = (tgt - pos).to_track_quat('-Z', 'Y').to_euler()
     cam.lens = lens; cam.dof.aperture_fstop = fs; cam.dof.focus_distance = (tgt - pos).length
+    if os.environ.get('CAM'):          # look-dev override: px,py,pz,tx,ty,tz,lens,fstop
+        q = [float(x) for x in os.environ['CAM'].split(',')]
+        pos, tgt = Vector(q[0:3]), Vector(q[3:6]); co.location = pos
+        co.rotation_euler = (tgt - pos).to_track_quat('-Z', 'Y').to_euler(); cam.lens = q[6]; cam.dof.aperture_fstop = q[7]
+        cam.dof.focus_distance = (tgt - pos).length
     # saucer: slow spin + bob, light flicker
     ufo.rotation_euler.z = t * 0.12; bob = 0.08 * math.sin(t * 1.3)
     for o in (ufo, ring, core): o.location.z = (UFO_C.z if o is ufo else (UFO_C.z - 0.8 if o is ring else UFO_C.z - 0.9)) + bob
