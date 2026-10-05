@@ -140,122 +140,158 @@ wallM2 = wallM.copy(); wall2 = mesh_obj('wall_far', [(-14, 6, -16), (14, 6, -16)
 wall2.hide_render = True
 
 # ---------------------------------------------------------------- spider materials
-def leg_material():
-    m = bpy.data.materials.new('leg'); nt, out = nodes(m)
+def hairy_mat(name, base, edge, es0, es1, sss=0.8):
+    m = bpy.data.materials.new(name); nt, out = nodes(m)
     p = nt.nodes.new('ShaderNodeBsdfPrincipled')
-    p.inputs['Base Color'].default_value = (1.0, 0.0, 0.11, 1); p.inputs['Roughness'].default_value = 0.35
-    p.inputs['Subsurface Weight'].default_value = 0.8; p.inputs['Subsurface Radius'].default_value = (1.0, 0.2, 0.35)
+    p.inputs['Base Color'].default_value = (*base, 1); p.inputs['Roughness'].default_value = 0.4
+    p.inputs['Subsurface Weight'].default_value = sss; p.inputs['Subsurface Radius'].default_value = (1.0, 0.25, 0.4)
     p.inputs['Subsurface Scale'].default_value = 0.05
+    p.inputs['Coat Weight'].default_value = 0.3; p.inputs['Coat Roughness'].default_value = 0.25
+    bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 140.0
+    nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.25; nt.links.new(bump.outputs[0], p.inputs['Normal'])
     lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.5
-    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.5), vb=2.4), vb=0.12)
-    p.inputs['Emission Color'].default_value = (1.0, 0.03, 0.22, 1); nt.links.new(es, p.inputs['Emission Strength'])
+    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.5), vb=es1), vb=es0)
+    p.inputs['Emission Color'].default_value = (*edge, 1); nt.links.new(es, p.inputs['Emission Strength'])
     nt.links.new(p.outputs[0], out.inputs[0]); return m
-legM = leg_material()
+legM = hairy_mat('leg', (1.0, 0.0, 0.1), (1.0, 0.04, 0.24), 0.12, 2.2)
+hairM = bpy.data.materials.new('hair'); nt, out = nodes(hairM)          # fine hair: glows when backlit
+hp = nt.nodes.new('ShaderNodeBsdfPrincipled'); hp.inputs['Roughness'].default_value = 0.45
+hi = nt.nodes.new('ShaderNodeHairInfo'); hcm = nt.nodes.new('ShaderNodeMix'); hcm.data_type = 'RGBA'
+nt.links.new(hi.outputs['Random'], hcm.inputs['Factor']); hcm.inputs[6].default_value = (1.0, 0.04, 0.22, 1); hcm.inputs[7].default_value = (1.0, 0.42, 0.6, 1)
+hgr = nt.nodes.new('ShaderNodeMix'); hgr.data_type = 'RGBA'; nt.links.new(hi.outputs['Intercept'], hgr.inputs['Factor'])
+nt.links.new(hcm.outputs[2], hgr.inputs[7]); hgr.inputs[6].default_value = (0.5, 0.0, 0.08, 1)          # darker at the root
+nt.links.new(hgr.outputs[2], hp.inputs['Base Color'])
+tl = nt.nodes.new('ShaderNodeBsdfTranslucent'); tl.inputs['Color'].default_value = (1.0, 0.35, 0.55, 1)
+hm = nt.nodes.new('ShaderNodeMixShader'); hm.inputs[0].default_value = 0.45; nt.links.new(hp.outputs[0], hm.inputs[1]); nt.links.new(tl.outputs[0], hm.inputs[2])
+he = nt.nodes.new('ShaderNodeEmission'); he.inputs[0].default_value = (1.0, 0.1, 0.32, 1); he.inputs[1].default_value = 0.35
+ha = nt.nodes.new('ShaderNodeAddShader'); nt.links.new(hm.outputs[0], ha.inputs[0]); nt.links.new(he.outputs[0], ha.inputs[1]); nt.links.new(ha.outputs[0], out.inputs[0])
 tipM = bpy.data.materials.new('tip'); nt, out = nodes(tipM)
-p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Base Color'].default_value = (0.02, 0.005, 0.01, 1); p.inputs['Roughness'].default_value = 0.3
-nt.links.new(p.outputs[0], out.inputs[0])
+p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Base Color'].default_value = (0.05, 0.004, 0.012, 1); p.inputs['Roughness'].default_value = 0.3
+p.inputs['Coat Weight'].default_value = 0.6; nt.links.new(p.outputs[0], out.inputs[0])
 
-# abdomen: black glossy with a glowing raspberry crack network
-abdM = bpy.data.materials.new('abdomen'); nt, out = nodes(abdM)
-AB = val(nt, 'B', 1.0)
-tc = nt.nodes.new('ShaderNodeTexCoord')
-warp = nt.nodes.new('ShaderNodeTexNoise'); warp.inputs['Scale'].default_value = 3.0; warp.inputs['Detail'].default_value = 3
-nt.links.new(tc.outputs['Object'], warp.inputs['Vector'])
-wv = nt.nodes.new('ShaderNodeVectorMath'); wv.operation = 'MULTIPLY_ADD'; nt.links.new(warp.outputs['Color'], wv.inputs[0])
-wv.inputs[1].default_value = (0.16, 0.16, 0.16); nt.links.new(tc.outputs['Object'], wv.inputs[2])
-vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.feature = 'DISTANCE_TO_EDGE'; vor.inputs['Scale'].default_value = 3.4
-nt.links.new(wv.outputs[0], vor.inputs['Vector'])
-line = Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', vor.outputs['Distance'], vb=0.05), clamp=True), vb=2.2)
-p = nt.nodes.new('ShaderNodeBsdfPrincipled')
-p.inputs['Base Color'].default_value = (0.006, 0.004, 0.007, 1); p.inputs['Roughness'].default_value = 0.16
-p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.05
-p.inputs['Emission Color'].default_value = (*RASP, 1); nt.links.new(Mth(nt, 'MULTIPLY', line, AB), p.inputs['Emission Strength'])
-nt.links.new(p.outputs[0], out.inputs[0])
-
-# carapace: raspberry with dark markings
-cepM = bpy.data.materials.new('carapace'); nt, out = nodes(cepM)
-tc = nt.nodes.new('ShaderNodeTexCoord'); mk = nt.nodes.new('ShaderNodeTexNoise'); mk.inputs['Scale'].default_value = 6.0; mk.inputs['Detail'].default_value = 2
-nt.links.new(tc.outputs['Object'], mk.inputs['Vector'])
-ramp = nt.nodes.new('ShaderNodeValToRGB'); ramp.color_ramp.elements[0].position = 0.5; ramp.color_ramp.elements[1].position = 0.58
-ramp.color_ramp.elements[0].color = (1.0, 0.0, 0.12, 1); ramp.color_ramp.elements[1].color = (0.01, 0.005, 0.01, 1)
-nt.links.new(mk.outputs['Fac'], ramp.inputs[0])
-p = nt.nodes.new('ShaderNodeBsdfPrincipled'); nt.links.new(ramp.outputs[0], p.inputs['Base Color']); p.inputs['Roughness'].default_value = 0.3
-p.inputs['Coat Weight'].default_value = 0.6
-lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.5
-p.inputs['Emission Color'].default_value = (1.0, 0.07, 0.3, 1)
-nt.links.new(Mth(nt, 'MULTIPLY', Mth(nt, 'LESS_THAN', mk.outputs['Fac'], vb=0.54), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=1.6), vb=0.08)), p.inputs['Emission Strength'])
-nt.links.new(p.outputs[0], out.inputs[0])
+def vein_mat(name, scale, core_w, base_col, edge_glow):
+    """glossy black shell with a bilaterally symmetric glowing crack network and a midline"""
+    m = bpy.data.materials.new(name); nt, out = nodes(m)
+    B = val(nt, 'B', 1.0)
+    tc = nt.nodes.new('ShaderNodeTexCoord'); sp = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(tc.outputs['Object'], sp.inputs[0])
+    ax = Mth(nt, 'ABSOLUTE', sp.outputs['X'])
+    cb = nt.nodes.new('ShaderNodeCombineXYZ'); nt.links.new(ax, cb.inputs[0]); nt.links.new(sp.outputs['Y'], cb.inputs[1]); nt.links.new(sp.outputs['Z'], cb.inputs[2])
+    warp = nt.nodes.new('ShaderNodeTexNoise'); warp.inputs['Scale'].default_value = 2.2; warp.inputs['Detail'].default_value = 3
+    nt.links.new(cb.outputs[0], warp.inputs['Vector'])
+    wv = nt.nodes.new('ShaderNodeVectorMath'); wv.operation = 'MULTIPLY_ADD'; nt.links.new(warp.outputs['Color'], wv.inputs[0])
+    wv.inputs[1].default_value = (0.13, 0.13, 0.13); nt.links.new(cb.outputs[0], wv.inputs[2])
+    vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.feature = 'DISTANCE_TO_EDGE'; vor.inputs['Scale'].default_value = scale
+    try: vor.inputs['Randomness'].default_value = 0.85
+    except Exception: pass
+    nt.links.new(wv.outputs[0], vor.inputs['Vector'])
+    dist = Mth(nt, 'MINIMUM', vor.outputs['Distance'], Mth(nt, 'MULTIPLY', Mth(nt, 'ABSOLUTE', sp.outputs['X']), vb=scale * 1.1))   # midline joins the network
+    core = Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', dist, vb=core_w), clamp=True), vb=1.5)
+    halo = Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', dist, vb=core_w * 4.0), clamp=True), vb=3.0)
+    p = nt.nodes.new('ShaderNodeBsdfPrincipled')
+    p.inputs['Base Color'].default_value = (*base_col, 1); p.inputs['Roughness'].default_value = 0.2
+    p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.04
+    bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 90.0
+    nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.08
+    groove = Mth(nt, 'MULTIPLY', core, vb=-1.0); nt.links.new(groove, bump.inputs['Height']) if False else None
+    nt.links.new(bump.outputs[0], p.inputs['Normal'])
+    lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.3
+    rimg = Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', lw.outputs['Fresnel'], vb=2.0), vb=edge_glow)
+    em = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', core, vb=4.0), Mth(nt, 'MULTIPLY', halo, vb=0.3)), B), rimg)
+    p.inputs['Emission Color'].default_value = (1.0, 0.03, 0.2, 1); nt.links.new(em, p.inputs['Emission Strength'])
+    nt.links.new(p.outputs[0], out.inputs[0]); return m
+abdM = vein_mat('abdomen', 2.5, 0.045, (0.004, 0.003, 0.005), 0.5)
+cepM = vein_mat('carapace', 3.2, 0.035, (0.012, 0.006, 0.008), 1.6)
 eyeM = bpy.data.materials.new('eye'); nt, out = nodes(eyeM)
-p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Base Color'].default_value = (0.002, 0.002, 0.003, 1); p.inputs['Roughness'].default_value = 0.04
-p.inputs['Coat Weight'].default_value = 1.0
+p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Base Color'].default_value = (0.001, 0.001, 0.0015, 1); p.inputs['Roughness'].default_value = 0.03
+p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.0
 EYE = val(nt, 'E', 0.0); p.inputs['Emission Color'].default_value = (*RASP, 1); nt.links.new(EYE, p.inputs['Emission Strength'])
 nt.links.new(p.outputs[0], out.inputs[0])
 
-# ---------------------------------------------------------------- spider body (local frame: x right, y forward, z up/dorsal)
-BODY = link(bpy.data.objects.new('body', None))
-cep = ellipsoid('carapace', (0, 0.16, 0.02), (0.2, 0.26, 0.13), cepM, parent=BODY)
-abd = ellipsoid('abdomen', (0, -0.46, 0.13), (0.34, 0.47, 0.3), abdM, parent=BODY); abd.rotation_euler = (math.radians(-12), 0, 0)
-ellipsoid('petiole', (0, -0.1, 0.06), (0.05, 0.07, 0.05), legM, 24, 12, parent=BODY)
-# eyes: two big front ones, six small around
-for (x, y, z, r) in [(0.055, 0.405, 0.075, 0.042), (-0.055, 0.405, 0.075, 0.042), (0.1, 0.37, 0.1, 0.024), (-0.1, 0.37, 0.1, 0.024),
-                     (0.045, 0.35, 0.135, 0.022), (-0.045, 0.35, 0.135, 0.022), (0.12, 0.31, 0.12, 0.018), (-0.12, 0.31, 0.12, 0.018)]:
-    ellipsoid('eye', (x, y, z), (r, r, r), eyeM, 24, 12, parent=BODY)
-for s in (-1, 1):
-    ch = ellipsoid('chelicera', (s * 0.05, 0.41, -0.03), (0.045, 0.06, 0.07), legM, 24, 12, parent=BODY); ch.rotation_euler = (math.radians(30), 0, 0)
-    ellipsoid('fang', (s * 0.05, 0.44, -0.1), (0.015, 0.015, 0.03), tipM, 12, 8, parent=BODY)
+def add_hair(o, count, length, radius=0.0016, children=6, spines=0, mat_index=2, lean=0.6):
+    if len(o.data.materials) < mat_index: o.data.materials.append(hairM)
+    ps = o.modifiers.new('fur', 'PARTICLE_SYSTEM'); st = ps.particle_system.settings
+    st.type = 'HAIR'; st.count = count; st.hair_length = length; st.emit_from = 'FACE'; st.use_emit_random = True
+    k_ = (length / 4.0) / math.hypot(0.8, lean)      # advanced hair: length = 4 x |velocity|
+    st.use_advanced_hair = True; st.normal_factor = 0.8 * k_; st.object_align_factor = (0.0, 0.0, lean * k_); st.factor_random = 0.2 * k_
+    st.material = mat_index; st.root_radius = 1.0; st.tip_radius = 0.0; st.radius_scale = radius
+    st.display_step = 2; st.render_step = 3
+    if children:
+        st.child_type = 'INTERPOLATED'; st.child_percent = 2; st.rendered_child_count = children
+        st.child_length = 0.9; st.child_length_threshold = 0.3; st.roughness_1 = 0.004; st.roughness_endpoint = 0.006
+    ps.particle_system.seed = int(rs.randint(1, 10000))
+    if spines:
+        ps2 = o.modifiers.new('spines', 'PARTICLE_SYSTEM'); s2 = ps2.particle_system.settings
+        s2.type = 'HAIR'; s2.count = spines; s2.hair_length = length * 2.6; s2.emit_from = 'FACE'; s2.use_emit_random = True
+        k2 = (length * 2.6 / 4.0) / math.hypot(0.8, lean * 1.2)
+        s2.use_advanced_hair = True; s2.normal_factor = 0.8 * k2; s2.object_align_factor = (0.0, 0.0, lean * 1.2 * k2); s2.factor_random = 0.1 * k2
+        s2.material = mat_index; s2.root_radius = 1.0; s2.tip_radius = 0.0; s2.radius_scale = radius * 1.8
+        s2.display_step = 2; s2.render_step = 3; ps2.particle_system.seed = int(rs.randint(1, 10000))
 
-# ---------------------------------------------------------------- legs: rigid hairy segments posed every frame
+# ---------------------------------------------------------------- spider body (local frame: x right, y forward, z up/dorsal)
 rs = np.random.RandomState(9)
-def seg_mesh(name, L, r0, r1, hairs, mat, hair_len=(0.014, 0.034)):
-    V, F = [], []; sides, rings = 10, 8
+BODY = link(bpy.data.objects.new('body', None))
+cep = ellipsoid('carapace', (0, 0.15, 0.03), (0.2, 0.25, 0.11), cepM, parent=BODY)
+for v in cep.data.vertices:                       # pear shape: wider at the back, head lifted at the front
+    x, y, z = v.co; v.co.x = x * (1.0 - 0.25 * max(0.0, y / 0.25)); v.co.z = z + 0.04 * max(0.0, y / 0.25) ** 2
+add_hair(cep, 260, 0.018, 0.0012, 4)
+abd = ellipsoid('abdomen', (0, -0.47, 0.16), (0.37, 0.4, 0.35), abdM, 96, 48, parent=BODY); abd.rotation_euler = (math.radians(-8), 0, 0)
+for v in abd.data.vertices:                       # slightly fuller at the rear, like the reference
+    x, y, z = v.co; k = 1.0 + 0.08 * (-y / 0.44); v.co.x = x * k; v.co.z = z * k
+ellipsoid('petiole', (0, -0.08, 0.06), (0.045, 0.07, 0.045), legM, 24, 12, parent=BODY)
+for (x, y, z, r) in [(0.052, 0.39, 0.105, 0.05), (-0.052, 0.39, 0.105, 0.05), (0.115, 0.355, 0.118, 0.026), (-0.115, 0.355, 0.118, 0.026),
+                     (0.045, 0.335, 0.16, 0.024), (-0.045, 0.335, 0.16, 0.024), (0.13, 0.3, 0.14, 0.02), (-0.13, 0.3, 0.14, 0.02)]:
+    ellipsoid('eye', (x, y, z), (r, r, r * 0.9), eyeM, 32, 16, parent=BODY)
+for s in (-1, 1):
+    ch = ellipsoid('chelicera', (s * 0.052, 0.405, 0.0), (0.05, 0.06, 0.085), legM, 32, 16, parent=BODY); ch.rotation_euler = (math.radians(35), 0, 0)
+    add_hair(ch, 120, 0.02, 0.0012, 4)
+    ellipsoid('fang', (s * 0.05, 0.45, -0.085), (0.014, 0.014, 0.035), tipM, 12, 8, parent=BODY)
+
+# ---------------------------------------------------------------- legs: shaped, curved, furry segments posed every frame
+def seg_mesh(name, L, r0, r1, mat, bulge=0.18, bend=0.0, fur=(500, 0.03), spines=12, tip=False):
+    V, F = [], []; sides, rings = 14, 22
     for j in range(rings + 1):
-        zz = L * j / rings; rr = r0 + (r1 - r0) * j / rings
+        u = j / rings; zz = L * u
+        rr = (r0 + (r1 - r0) * u) * (1.0 + bulge * math.sin(math.pi * u) ** 0.8) * (1.0 - 0.18 * max(0.0, 1 - u / 0.06) - 0.12 * max(0.0, (u - 0.94) / 0.06))
+        cx = bend * L * math.sin(math.pi * u)                  # arc toward local +X
         for k in range(sides):
-            a = k / sides * 2 * math.pi; V.append((rr * math.cos(a), rr * math.sin(a), zz))
+            a = k / sides * 2 * math.pi; V.append((cx + rr * math.cos(a), rr * math.sin(a), zz))
     for j in range(rings):
         for k in range(sides):
             F.append((j * sides + k, j * sides + (k + 1) % sides, (j + 1) * sides + (k + 1) % sides, (j + 1) * sides + k))
     V.append((0, 0, 0)); V.append((0, 0, L)); c0, c1 = len(V) - 2, len(V) - 1
     for k in range(sides):
         F.append((c0, (k + 1) % sides, k)); F.append((c1, rings * sides + k, rings * sides + (k + 1) % sides))
-    for h in range(hairs):                              # thin bristles leaning toward the tip
-        zz = rs.uniform(0.04, 0.96) * L; rr = r0 + (r1 - r0) * zz / L; a = rs.uniform(0, 2 * math.pi)
-        rad = np.array([math.cos(a), math.sin(a), 0.0]); lean = rs.uniform(0.45, 0.9)
-        d = rad * math.cos(lean) + np.array([0, 0, 1.0]) * math.sin(lean); hl = rs.uniform(*hair_len)
-        p0 = rad * rr * 0.9 + np.array([0, 0, zz]); p1 = p0 + d * hl
-        side = np.cross(d, [0, 0, 1.0]); side = side / (np.linalg.norm(side) + 1e-9) * 0.0016
-        b = len(V); V += [tuple(p0 - side), tuple(p0 + side), tuple(p1)]; F.append((b, b + 1, b + 2))
-    o = mesh_obj(name, V, F, mat); return o
+    o = mesh_obj(name, V, F, mat)
+    if fur: add_hair(o, fur[0], fur[1], 0.0009 if not tip else 0.0006, 6, spines)
+    return o
 
-# leg table: side, index -> hip angle (deg from forward), rest foot angle, rest reach, femur L1, distal L2
 LEGS = []
-spec = [(28, 24, 1.42, 1.02, 1.42), (62, 60, 1.3, 0.94, 1.28), (104, 112, 0.9, 0.64, 0.86), (140, 156, 1.22, 0.88, 1.2)]
+spec = [(28, 22, 1.85, 1.02, 1.42), (62, 58, 1.68, 0.94, 1.28), (104, 112, 1.14, 0.64, 0.86), (140, 158, 1.56, 0.88, 1.2)]
 for s in (-1, 1):
     for i, (ha, fa, reach, L1, L2) in enumerate(spec):
-        hip = np.array([s * 0.18 * math.sin(math.radians(ha)), 0.16 + 0.22 * math.cos(math.radians(ha)), -0.01])
-        rest = np.array([s * reach * math.sin(math.radians(fa)), 0.16 + reach * math.cos(math.radians(fa))])
-        g = (i + (0 if s < 0 else 1)) % 2                       # alternating tetrapod groups
+        hip = np.array([s * 0.17 * math.sin(math.radians(ha)), 0.15 + 0.21 * math.cos(math.radians(ha)), -0.01])
+        rest = np.array([s * reach * math.sin(math.radians(fa)), 0.15 + reach * math.cos(math.radians(fa))])
+        g = (i + (0 if s < 0 else 1)) % 2
         tib, met = 0.47 * L2, 0.43 * L2
-        lt = math.hypot(tib, 0.05 * L2); lm = math.hypot(met, 0.04 * L2); lta = L2 - tib - met
-        segs = [seg_mesh(f'femur{s}{i}', L1, 0.028, 0.023, 170, legM),
-                seg_mesh(f'tibia{s}{i}', lt, 0.022, 0.017, 130, legM),
-                seg_mesh(f'meta{s}{i}', lm, 0.016, 0.011, 90, legM, (0.012, 0.026)),
-                seg_mesh(f'tarsus{s}{i}', math.hypot(lta, 0.01 * L2), 0.013, 0.006, 20, tipM, (0.015, 0.03))]
-        joints = [ellipsoid(f'j{s}{i}{k}', (0, 0, 0), (r, r, r), legM, 16, 8) for k, r in enumerate((0.038, 0.029, 0.022, 0.016))]
+        lt = math.hypot(tib, 0.05 * L2); lm = math.hypot(met, 0.04 * L2); lta = math.hypot(L2 - tib - met, 0.01 * L2)
+        segs = [seg_mesh(f'femur{s}{i}', L1, 0.029, 0.024, legM, 0.2, 0.09, (int(1300 * L1), 0.026), 14),
+                seg_mesh(f'tibia{s}{i}', lt, 0.023, 0.018, legM, 0.12, 0.05, (int(1200 * lt), 0.024), 10),
+                seg_mesh(f'meta{s}{i}', lm, 0.016, 0.01, legM, 0.06, 0.015, (int(900 * lm), 0.018), 6),
+                seg_mesh(f'tarsus{s}{i}', lta, 0.009, 0.004, tipM, 0.05, 0.0, (60, 0.01), 0, True)]
+        joints = [ellipsoid(f'j{s}{i}{k}', (0, 0, 0), (r, r, r), legM, 20, 10) for k, r in enumerate((0.03, 0.024, 0.018, 0.012))]
         LEGS.append(dict(s=s, i=i, hip=hip, rest=rest, L1=L1, L2=L2, g=g, segs=segs, joints=joints, tib=tib, met=met))
-# pedipalps: short, held in front
 PALPS = []
 for s in (-1, 1):
-    a = seg_mesh(f'palpA{s}', 0.2, 0.024, 0.02, 40, legM); b = seg_mesh(f'palpB{s}', 0.16, 0.02, 0.016, 30, legM)
+    a = seg_mesh(f'palpA{s}', 0.2, 0.02, 0.017, legM, 0.15, 0.04, (220, 0.016), 4)
+    b = seg_mesh(f'palpB{s}', 0.17, 0.017, 0.013, legM, 0.12, 0.04, (180, 0.016), 4)
     PALPS.append((s, a, b))
 
-def frame_from(p0, p1, side_hint):
-    z = Vector(p1) - Vector(p0); L = z.length; z.normalize()
-    x = Vector(side_hint).cross(z)
-    if x.length < 1e-5: x = Vector((1, 0, 0)).cross(z)
+def frame_from(p0, p1, x_hint):
+    z = Vector(p1) - Vector(p0); z.normalize()
+    x = Vector(x_hint); x = x - z * x.dot(z)
+    if x.length < 1e-6: x = Vector((1, 0, 0)) - z * z.x
     x.normalize(); y = z.cross(x)
-    M = Matrix(((x.x, y.x, z.x, p0[0]), (x.y, y.y, z.y, p0[1]), (x.z, y.z, z.z, p0[2]), (0, 0, 0, 1)))
-    return M
+    return Matrix(((x.x, y.x, z.x, p0[0]), (x.y, y.y, z.y, p0[1]), (x.z, y.z, z.z, p0[2]), (0, 0, 0, 1)))
 
 # ---------------------------------------------------------------- motion
 NW = np.array([0.0, -1.0, 0.0])         # wall normal, toward camera
@@ -312,10 +348,11 @@ def spot(name, loc, target, col, energy, size, ang=40):
     L.spot_size = math.radians(ang); L.spot_blend = 0.6
     o = link(bpy.data.objects.new(name, L)); o.location = loc
     o.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler(); return o
-key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.82, 0.9), 900, 1.2, 50)
-rim = spot('rim', (2.8, -0.9, 3.6), (0, 0, 0.3), (0.85, 0.2, 1.0), 1300, 0.8, 45)       # magenta rim like the reference
+key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.85, 0.92), 1600, 1.5, 50)
+rim = spot('rim', (2.8, -0.9, 3.6), (0, 0, 0.3), (0.75, 0.25, 1.0), 2400, 0.8, 45)
+rim2 = spot('rim2', (-3.0, -0.7, -2.4), (0, 0, 0.3), (0.55, 0.3, 1.0), 1400, 0.8, 45)       # magenta rim like the reference
 under = spot('under', (0.0, -3.0, -3.0), (0, 0, 0.0), (0.2, 1.0, 0.35), 110, 4.0, 60)     # green bounce from the code
-TRACK = [key, rim, under]
+TRACK = [key, rim, rim2, under]
 TRACK_OFF = [o.location.copy() for o in TRACK]
 
 # ---------------------------------------------------------------- camera
@@ -364,9 +401,8 @@ def set_time(t):
         J1 = K + dn * leg['tib'] + upp * 0.05 * leg['L2']
         J2 = K + dn * (leg['tib'] + leg['met']) + upp * 0.01 * leg['L2']
         pts = [H, K, J1, J2, Fr]
-        side = np.cross(Fr - H, NW)
         for k, o in enumerate(leg['segs']):
-            o.matrix_world = frame_from(pts[k], pts[k + 1], side)
+            o.matrix_world = frame_from(pts[k], pts[k + 1], upp)
         for k, o in enumerate(leg['joints']):
             o.matrix_world = Matrix.Translation(Vector(pts[k]))
         # footfall flash on the wall
@@ -379,7 +415,7 @@ def set_time(t):
         p0 = c + r * (s * 0.07) + f * 0.4 + up * 0.0
         p1 = p0 + r * (s * 0.1) + f * (0.14 + w) - up * 0.06
         p2 = p1 + r * (s * 0.02) + f * 0.12 - up * 0.08
-        a.matrix_world = frame_from(p0, p1, r); b.matrix_world = frame_from(p1, p2, r)
+        a.matrix_world = frame_from(p0, p1, up); b.matrix_world = frame_from(p1, p2, up)
     # code wall
     wn['T'].outputs[0].default_value = t
     wn['REV'].outputs[0].default_value = 1.15 * smooth01((t - 0.15) / 1.9)
@@ -387,7 +423,7 @@ def set_time(t):
     wn['INF_R'].outputs[0].default_value = 7.5 * smooth01((t - 9.6) / 2.6) ** 1.3
     # abdomen veins pulse with the steps, flare during the infection
     pulse = 0.5 + 0.5 * math.sin(2 * math.pi * t / TS)
-    abdM.node_tree.nodes['B'].outputs[0].default_value = 2.2 + 1.6 * pulse + 9.0 * smooth01((t - 9.4) / 0.6) * (1 - 0.6 * smooth01((t - 11.0) / 1.5))
+    abdM.node_tree.nodes['B'].outputs[0].default_value = 0.8 + 0.5 * pulse + 2.5 * smooth01((t - 9.4) / 0.6) * (1 - 0.6 * smooth01((t - 11.0) / 1.5))
     eyeM.node_tree.nodes['E'].outputs[0].default_value = 3.0 * smooth01((t - 12.4) / 0.6)
     # lights follow the spider
     for o, off in zip(TRACK, TRACK_OFF):
@@ -396,6 +432,10 @@ def set_time(t):
     # camera
     cam.location = camp; cam.rotation_euler = (Vector(tgt) - Vector(camp)).to_track_quat('-Z', 'Y').to_euler()
     cam.data.lens = lens; cam.data.dof.aperture_fstop = fst
+    if os.environ.get('CAM'):          # look-dev override: px,py,pz,tx,ty,tz,lens,fstop
+        q = [float(x) for x in os.environ['CAM'].split(',')]
+        camp, tgt = tuple(q[0:3]), tuple(q[3:6]); cam.location = camp
+        cam.rotation_euler = (Vector(tgt) - Vector(camp)).to_track_quat('-Z', 'Y').to_euler(); cam.data.lens = q[6]; cam.data.dof.aperture_fstop = q[7]
     focus = c if t > 2.4 else np.array([0.0, 0.0, 2.3])
     cam.data.dof.focus_distance = float(np.linalg.norm(np.array(camp) - focus))
     # blackout at the very end
