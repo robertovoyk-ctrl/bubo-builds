@@ -113,7 +113,7 @@ mg = wn.nodes.new('ShaderNodeMath'); mg.operation = 'POWER'; mg.inputs[1].defaul
 mx0 = wn.nodes.new('ShaderNodeMath'); mx0.operation = 'MAXIMUM'; mx0.inputs[1].default_value = 0.0
 wn.links.new(dotn.outputs['Value'], mx0.inputs[0]); wn.links.new(mx0.outputs[0], mg.inputs[0])
 cloudcol = wn.nodes.new('ShaderNodeMixRGB'); cloudcol.blend_type = 'MIX'
-cloudcol.inputs[1].default_value = (0.05, 0.065, 0.12, 1); cloudcol.inputs[2].default_value = (0.55, 0.62, 0.8, 1)
+cloudcol.inputs[1].default_value = (0.05, 0.065, 0.12, 1); cloudcol.inputs[2].default_value = (0.16, 0.2, 0.3, 1)
 wn.links.new(mg.outputs[0], cloudcol.inputs[0])
 mix_sky = wn.nodes.new('ShaderNodeMixRGB'); mix_sky.blend_type = 'MIX'
 wn.links.new(clr.outputs['Color'], mix_sky.inputs[0])
@@ -135,7 +135,7 @@ wn.links.new(add.outputs['Color'], bg.inputs['Color']); bg.inputs['Strength'].de
 wn.links.new(bg.outputs[0], wout.inputs[0])
 
 # moon disc + moonlight
-moon = ellipsoid('moon', MOON_DIR * 900, (14, 14, 14), emission('moonM', (0.85, 0.9, 1.0), 14), 32, 16)
+moon = ellipsoid('moon', MOON_DIR * 900, (14, 14, 14), emission('moonM', (0.85, 0.9, 1.0), 14), 32, 16); moon.hide_render = True
 sun = bpy.data.lights.new('moonlight', 'SUN'); sun.energy = 0.55; sun.color = (0.55, 0.66, 1.0); sun.angle = math.radians(1.5)
 so = link(bpy.data.objects.new('moonlight', sun))
 so.rotation_euler = (-MOON_DIR).to_track_quat('-Z', 'Y').to_euler()
@@ -228,8 +228,8 @@ bmp = nt.nodes.new('ShaderNodeBump'); bmp.inputs['Strength'].default_value = 0.3
 nt.links.new(rp.outputs['Color'], bmp.inputs['Height']); nt.links.new(bmp.outputs['Normal'], p.inputs['Normal'])
 nt.links.new(p.outputs[0], out.inputs[0])
 ufo = mesh_obj('saucer', V, F, hullM); ufo.location = UFO_C
-BLUE = (0.35, 0.68, 1.0)
-ringM = emission('ring', BLUE, 35.0)
+BLUE = (0.0, 0.9, 0.72)
+ringM = emission('ring', BLUE, 22.0)
 bm = bmesh.new();
 seg = 256; mr = 4.55; nr = 0.11; tv = []
 for i in range(seg):
@@ -243,7 +243,7 @@ for i in range(seg):
         a = i * 10 + k; b2 = ((i + 1) % seg) * 10 + k
         tf.append((a, b2, ((i + 1) % seg) * 10 + (k + 1) % 10, i * 10 + (k + 1) % 10))
 ring = mesh_obj('ring', tv, tf, ringM); ring.location = UFO_C + Vector((0, 0, -0.8)); ring.parent = None
-coreM = emission('core', (0.45, 0.75, 1.0), 0.7)
+coreM = emission('core', (0.0, 0.85, 0.7), 0.3)
 bm = bmesh.new(); bmesh.ops.create_circle(bm, cap_ends=True, segments=96, radius=2.3)
 core = bm_obj('core', bm, coreM, smooth=False); core.location = UFO_C + Vector((0, 0, -0.9))
 beamL = bpy.data.lights.new('beam', 'SPOT'); beamL.energy = 5000; beamL.color = BLUE
@@ -382,6 +382,11 @@ def tube(name, pts, r0, r1, mat, sides=10):
     for i in range(n - 1):
         for k in range(sides):
             F.append((i * sides + k, i * sides + (k + 1) % sides, (i + 1) * sides + (k + 1) % sides, (i + 1) * sides + k))
+    t0 = (pts[1] - pts[0]).normalized(); t1 = (pts[-1] - pts[-2]).normalized()
+    V.append(pts[0] - t0 * r0 * 0.6); V.append(pts[-1] + t1 * r1 * 0.9); c0, c1 = len(V) - 2, len(V) - 1
+    last = (n - 1) * sides
+    for k in range(sides):
+        F.append((c0, (k + 1) % sides, k)); F.append((c1, last + k, last + (k + 1) % sides))
     return mesh_obj(name, V, F, mat)
 def front_panel():
     best = None
@@ -685,7 +690,7 @@ def set_time(t):
     ufo.rotation_euler.z = t * 0.12; bob = 0.08 * math.sin(t * 1.3)
     for o in (ufo, ring, core): o.location.z = (UFO_C.z if o is ufo else (UFO_C.z - 0.8 if o is ring else UFO_C.z - 0.9)) + bob
     fl = 1.0 + 0.06 * math.sin(t * 17.0) * math.sin(t * 3.1)
-    ringM.node_tree.nodes['Emission'].inputs[1].default_value = 35.0 * fl
+    ringM.node_tree.nodes['Emission'].inputs[1].default_value = 22.0 * fl
     shaftM.node_tree.nodes['K'].inputs[1].default_value = 0.55 * fl
     # head opening
     op = smooth01((t - OPEN0) / (OPEN1 - OPEN0)) * (1 - smooth01((t - CLOSE0) / (CLOSE1 - CLOSE0)))
