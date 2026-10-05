@@ -309,7 +309,7 @@ for (x, y, w2, h2, img) in ((span * 0.26, 4.05, 1.5, 1.1, 'paint_a.png'), (span 
     plane(f'art{x}', w2, h2, (x, y, -KEY['LEN'] - 0.9), I3, img_mat(f'art{x}', os.path.join(TEX, img), 0.7))
 fl = plane('floor', 60, 60, (span / 2, -2.45, 0), euler3(-math.pi / 2, 0, 0), M['floor'])
 
-# ---- light: one warm lamp pool raking the keys (like the reference), soft glow on the panel, candle, faint cool fill ----
+# ---- light: one warm lamp pool raking the keys, soft glow on the panel, candle, faint cool fill ----
 def spot(name, pos, target, energy, color, size_deg, blend, radius):
     l = bpy.data.lights.new(name, 'SPOT'); l.energy = energy; l.color = color; l.spot_size = math.radians(size_deg); l.spot_blend = blend; l.shadow_soft_size = radius
     o = bpy.data.objects.new(name, l); link(o); o.location = B(pos)
@@ -497,7 +497,7 @@ def octoPose(t):
     sm = 1 + 0.25 * math.exp(-sinceBar * 6) * (1 if t > score['t0'] else 0) + 0.3 * atFly
     smile.matrix_basis = mat4(I3, smile_pos, sm)
 
-# camera keyframes (lower, closer to key level than v2, like the reference)
+# camera keyframes (lower, closer to key level than v2)
 Vv = lambda x, y, z: Vector((x, y, z))
 camA = [
     dict(t=0.0,  p=Vv(14.5, 1.5, 12.0), l=Vv(3.9, 1.35, -1.0), f=Vv(3.8, 0.45, -0.7), fov=21, fs=0.55),

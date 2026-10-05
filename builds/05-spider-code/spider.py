@@ -270,7 +270,7 @@ for v in cep.data.vertices:                       # pear shape: wider at the bac
     x, y, z = v.co; v.co.x = x * (1.0 - 0.25 * max(0.0, y / 0.25)); v.co.z = z + 0.04 * max(0.0, y / 0.25) ** 2
 add_hair(cep, 260, 0.018, 0.0012, 4)
 abd = ellipsoid('abdomen', (0, -0.47, 0.16), (0.37, 0.4, 0.35), abdM, 96, 48, parent=BODY); abd.rotation_euler = (math.radians(-8), 0, 0)
-for v in abd.data.vertices:                       # slightly fuller at the rear, like the reference
+for v in abd.data.vertices:                       # slightly fuller at the rear
     x, y, z = v.co; k = 1.0 + 0.08 * (-y / 0.44); v.co.x = x * k; v.co.z = z * k
 ellipsoid('petiole', (0, -0.08, 0.06), (0.045, 0.07, 0.045), legM, 24, 12, parent=BODY)
 for (x, y, z, r) in [(0.06, 0.395, 0.1, 0.066), (-0.06, 0.395, 0.1, 0.066), (0.115, 0.355, 0.118, 0.026), (-0.115, 0.355, 0.118, 0.026),
@@ -392,7 +392,7 @@ def spot(name, loc, target, col, energy, size, ang=40):
     o.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler(); return o
 key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.85, 0.92), 1600, 3.2, 50)
 rim = spot('rim', (2.8, -0.9, 3.6), (0, 0, 0.3), (0.75, 0.25, 1.0), 2400, 0.8, 45)
-rim2 = spot('rim2', (-3.0, -0.7, -2.4), (0, 0, 0.3), (0.55, 0.3, 1.0), 1400, 0.8, 45)       # magenta rim like the reference
+rim2 = spot('rim2', (-3.0, -0.7, -2.4), (0, 0, 0.3), (0.55, 0.3, 1.0), 1400, 0.8, 45)       # second magenta rim from below
 under = spot('under', (0.0, -3.0, -3.0), (0, 0, 0.0), (0.2, 1.0, 0.35), 110, 4.0, 60)     # green bounce from the code
 TRACK = [key, rim, rim2, under]
 TRACK_OFF = [o.location.copy() for o in TRACK]

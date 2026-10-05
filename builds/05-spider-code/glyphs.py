@@ -15,7 +15,7 @@ def make_glyph():
             dx, dy = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (2, 0), (0, 2)][rng.randint(8)]
             nx, ny = min(GX, max(0, x + dx)), min(GY, max(0, y + dy))
             segs.append((x, y, nx, ny)); x, y = nx, ny
-    if rng.uniform() < 0.45:                    # horizontal bar, common in the reference glyphs
+    if rng.uniform() < 0.45:                    # horizontal bar on many glyphs
         yb = rng.randint(0, GY + 1); segs.append((0, yb, GX, yb))
     return segs
 lib = [make_glyph() for _ in range(90)]
