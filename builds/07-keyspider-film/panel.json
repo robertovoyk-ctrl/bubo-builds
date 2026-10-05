@@ -1,0 +1,26 @@
+{
+ "rows": 58,
+ "cols": 92,
+ "findings": [
+  {
+   "row": 18,
+   "k": 1,
+   "label": "Stripe live key \u00b7 LIVE"
+  },
+  {
+   "row": 32,
+   "k": 2,
+   "label": "Telegram bot token \u00b7 LIVE"
+  },
+  {
+   "row": 45,
+   "k": 3,
+   "label": "database password \u00b7 LIVE"
+  },
+  {
+   "row": 55,
+   "k": 4,
+   "label": "OpenAI key \u00b7 deleted, still in git history"
+  }
+ ]
+}

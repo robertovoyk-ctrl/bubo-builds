@@ -14,6 +14,7 @@ and the sound is synthesized or played from open samples.
 | 04 | [Fly under the UFO](builds/04-fly-ufo) | A giant fruit fly in a UFO beam; the head opens and the brain lights up | Blender (bpy), numpy audio |
 | 05 | [Code scanner](builds/05-spider-code) | A spider crawls down a wall of code and turns it red | Blender (bpy), numpy audio |
 | 06 | [keyspider](builds/06-keyspider) | Finds API keys and passwords in a git repo, including deleted ones still in history | Python, git |
+| 07 | [keyspider film](builds/07-keyspider-film) | The spider walks down real code and lights up the secrets keyspider found in it | Blender (bpy), Python, numpy audio |
 
 ## How every build works
 
