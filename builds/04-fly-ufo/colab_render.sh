@@ -11,8 +11,8 @@ pip -q install soundfile >/dev/null 2>&1
 python3 audio.py || fail "audio"
 BUBO_GPU=1 /content/blender/blender -b --python scene.py -- full 0:672:1 ${RES:-608} ${SPP:-10} frames > render.log 2>&1 &
 PID=$!
-while kill -0 $PID 2>/dev/null; do sleep 30; echo "$(ls full 2>/dev/null | wc -l)/672 frames  $(grep -m1 '^GPU' render.log)  last: $(grep DONE render.log | tail -1)"; done
+while kill -0 $PID 2>/dev/null; do sleep 30; echo "$(ls full 2>/dev/null | wc -l)/672 frames  $(grep -a -m1 '^GPU' render.log)  last: $(grep -a DONE render.log | tail -1)"; done
 N=$(ls full 2>/dev/null | wc -l)
-[ "$N" -ge 672 ] || { grep -A12 Traceback render.log | tail -30; fail "render stopped at $N/672"; }
+[ "$N" -ge 672 ] || { grep -a -A12 Traceback render.log | tail -30; fail "render stopped at $N/672"; }
 chmod +x post.sh && ./post.sh /content/fly_ufo.mp4 || fail "ffmpeg"
 echo "DONE -> /content/fly_ufo.mp4"
