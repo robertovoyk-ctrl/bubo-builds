@@ -8,7 +8,8 @@ if [ ! -x /content/blender/blender ]; then
   mkdir -p /content/blender && tar -xf /tmp/b.tar.xz -C /content/blender --strip-components=1 || fail "blender unpack"
 fi
 pip -q install soundfile >/dev/null 2>&1
-python3 audio.py || fail "audio"; pip -q install pillow >/dev/null 2>&1; python3 card.py || fail "card"
+python3 audio.py || fail "audio"
+[ -f card.png ] || fail "card.png missing"
 BUBO_GPU=1 /content/blender/blender -b --python film.py -- full 0:336:1 ${RES:-720} ${SPP:-20} frames > render.log 2>&1 &
 PID=$!
 while kill -0 $PID 2>/dev/null; do sleep 30; echo "$(ls full 2>/dev/null | wc -l)/336 frames  $(grep -a -m1 '^GPU' render.log)  last: $(grep -a DONE render.log | tail -1)"; done
