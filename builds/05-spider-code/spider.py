@@ -75,7 +75,7 @@ world.node_tree.nodes['Background'].inputs[1].default_value = 0.0
 # ---------------------------------------------------------------- the code wall
 NFEET = 8
 gimg = bpy.data.images.load(os.path.join(HERE, 'glyphs.png')); gimg.colorspace_settings.name = 'Non-Color'
-ROWS_ATLAS = 64; ROW_H = 0.075; ROW_W = 9.0          # wall units: row height, length of one atlas row
+ROWS_ATLAS = 64; ROW_H = 0.1; ROW_W = 9.6          # wall units: row height, length of one atlas row
 wallM = bpy.data.materials.new('codewall'); nt, out = nodes(wallM)
 T = val(nt, 'T'); REV = val(nt, 'REV'); INF_R = val(nt, 'INF_R')
 IX, IY, IZ = val(nt, 'IX'), val(nt, 'IY'), val(nt, 'IZ')
@@ -95,7 +95,7 @@ u = Mth(nt, 'FRACT', u)
 rloc = Mth(nt, 'MODULO', Mth(nt, 'ADD', rowg, vb=6400.0), vb=float(ROWS_ATLAS))
 v = Mth(nt, 'DIVIDE', Mth(nt, 'ADD', rloc, fz), vb=float(ROWS_ATLAS))
 cmb = nt.nodes.new('ShaderNodeCombineXYZ'); nt.links.new(u, cmb.inputs[0]); nt.links.new(v, cmb.inputs[1])
-tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = gimg; tex.extension = 'REPEAT'; tex.interpolation = 'Linear'
+tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = gimg; tex.extension = 'REPEAT'; tex.interpolation = 'Cubic'
 nt.links.new(cmb.outputs[0], tex.inputs['Vector'])
 glyph = tex.outputs['Color']
 gs = nt.nodes.new('ShaderNodeSeparateColor'); nt.links.new(glyph, gs.inputs[0]); g = gs.outputs[0]
@@ -129,7 +129,7 @@ for i in range(NFEET):
 rasp_mix = Mth(nt, 'MINIMUM', Mth(nt, 'ADD', infect, Mth(nt, 'MULTIPLY', fsum, vb=1.6)), vb=1.0)
 col = nt.nodes.new('ShaderNodeMix'); col.data_type = 'RGBA'; nt.links.new(rasp_mix, col.inputs['Factor'])
 col.inputs[6].default_value = (*GREEN, 1); col.inputs[7].default_value = (*RASP, 1)
-strength = Mth(nt, 'MULTIPLY', Mth(nt, 'MULTIPLY', g, reveal), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', bright, vb=1.5), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', fsum, vb=10.0), Mth(nt, 'MULTIPLY', front, vb=8.0))))
+strength = Mth(nt, 'MULTIPLY', Mth(nt, 'MULTIPLY', g, reveal), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', bright, vb=3.0), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', fsum, vb=10.0), Mth(nt, 'MULTIPLY', front, vb=8.0))))
 em = nt.nodes.new('ShaderNodeEmission'); nt.links.new(col.outputs[2], em.inputs['Color']); nt.links.new(strength, em.inputs['Strength'])
 # the wall itself is a dark glossy panel so the spider stands on something
 dk = nt.nodes.new('ShaderNodeBsdfPrincipled'); dk.inputs['Base Color'].default_value = (0.003, 0.004, 0.0035, 1); dk.inputs['Roughness'].default_value = 0.7; dk.inputs['Specular IOR Level'].default_value = 0.15
@@ -141,7 +141,7 @@ floatM = wallM.copy(); floatM.name = 'codefloat'; fnt = floatM.node_tree
 _dk = [n for n in fnt.nodes if n.type == 'BSDF_PRINCIPLED'][0]; _ad = [n for n in fnt.nodes if n.type == 'ADD_SHADER'][0]
 _tr = fnt.nodes.new('ShaderNodeBsdfTransparent'); fnt.links.new(_tr.outputs[0], _ad.inputs[1]); fnt.nodes.remove(_dk)
 fr_ = np.random.RandomState(31); FLOATS = []
-for k in range(42):
+for k in range(26):
     w_ = fr_.uniform(0.5, 1.6); x_ = fr_.uniform(-3.0, 3.0); y_ = fr_.uniform(-2.8, -0.9)
     z_ = math.floor(fr_.uniform(-3.0, 4.5) / ROW_H) * ROW_H
     o_ = mesh_obj(f'float{k}', [(-w_ / 2, 0, 0), (w_ / 2, 0, 0), (w_ / 2, 0, ROW_H), (-w_ / 2, 0, ROW_H)], [(0, 1, 2, 3)], floatM, smooth=False)
@@ -172,19 +172,26 @@ def leg_material():
     sx = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(vt.outputs[0], sx.inputs[0])
     top = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', sx.outputs['X'], vb=0.5), vb=0.5, clamp=True)
     tb = nt.nodes.new('ShaderNodeMix'); tb.data_type = 'RGBA'; nt.links.new(top, tb.inputs['Factor'])
-    tb.inputs[6].default_value = (0.16, 0.0, 0.035, 1); tb.inputs[7].default_value = (1.0, 0.04, 0.22, 1)
+    tb.inputs[6].default_value = (0.03, 0.0, 0.008, 1); tb.inputs[7].default_value = (0.62, 0.008, 0.11, 1)
+    mot = nt.nodes.new('ShaderNodeTexNoise'); mot.inputs['Scale'].default_value = 18.0; mot.inputs['Detail'].default_value = 6
+    nt.links.new(tc.outputs['Object'], mot.inputs['Vector'])
+    mott = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', mot.outputs['Fac'], vb=0.7), vb=0.65)
+    tbm = nt.nodes.new('ShaderNodeMix'); tbm.data_type = 'RGBA'; tbm.blend_type = 'MULTIPLY'; tbm.inputs['Factor'].default_value = 1.0
+    nt.links.new(tb.outputs[2], tbm.inputs[6]); cmb_ = nt.nodes.new('ShaderNodeCombineColor')
+    nt.links.new(mott, cmb_.inputs[0]); nt.links.new(mott, cmb_.inputs[1]); nt.links.new(mott, cmb_.inputs[2]); nt.links.new(cmb_.outputs[0], tbm.inputs[7])
     cm = nt.nodes.new('ShaderNodeMix'); cm.data_type = 'RGBA'; nt.links.new(band, cm.inputs['Factor'])
-    nt.links.new(tb.outputs[2], cm.inputs[6]); cm.inputs[7].default_value = (0.15, 0.0, 0.03, 1)
+    nt.links.new(tbm.outputs[2], cm.inputs[6]); cm.inputs[7].default_value = (0.06, 0.0, 0.012, 1)
     p = nt.nodes.new('ShaderNodeBsdfPrincipled'); nt.links.new(cm.outputs[2], p.inputs['Base Color'])
-    p.inputs['Roughness'].default_value = 0.38
-    p.inputs['Subsurface Weight'].default_value = 0.35; p.inputs['Subsurface Radius'].default_value = (1.0, 0.05, 0.15)
-    p.inputs['Subsurface Scale'].default_value = 0.05
-    p.inputs['Coat Weight'].default_value = 0.2; p.inputs['Coat Roughness'].default_value = 0.25
-    bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 60.0
-    nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.06; nt.links.new(bump.outputs[0], p.inputs['Normal'])
+    p.inputs['Roughness'].default_value = 0.5
+    p.inputs['Subsurface Weight'].default_value = 0.12; p.inputs['Subsurface Radius'].default_value = (1.0, 0.08, 0.2)
+    p.inputs['Subsurface Scale'].default_value = 0.03
+    p.inputs['Coat Weight'].default_value = 0.6; p.inputs['Coat Roughness'].default_value = 0.08
+    bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 150.0; bn.inputs['Detail'].default_value = 4
+    rings = Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'ABSOLUTE', Mth(nt, 'SINE', Mth(nt, 'MULTIPLY', zg, vb=2 * math.pi * 14))), vb=6.0), vb=0.25)
+    nt.links.new(Mth(nt, 'ADD', bn.outputs['Fac'], rings), bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.18; nt.links.new(bump.outputs[0], p.inputs['Normal'])
     lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.5
-    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.4), vb=1.5), vb=0.12)
-    es = Mth(nt, 'ADD', es, Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', top, vb=2.0), vb=0.22))          # inner glow on the lit top
+    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=3.0), vb=1.1), vb=0.04)
+    es = Mth(nt, 'ADD', es, Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', top, vb=3.0), vb=0.12))          # inner glow on the lit top
     es = Mth(nt, 'MULTIPLY', es, Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'MULTIPLY', band, vb=0.8)))
     p.inputs['Emission Color'].default_value = (1.0, 0.04, 0.26, 1); nt.links.new(es, p.inputs['Emission Strength'])
     nt.links.new(p.outputs[0], out.inputs[0]); return m
@@ -224,7 +231,7 @@ def vein_mat(name, scale, core_w, base_col, edge_glow):
     halo = Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', dist, vb=core_w * 4.0), clamp=True), vb=3.0)
     p = nt.nodes.new('ShaderNodeBsdfPrincipled')
     p.inputs['Base Color'].default_value = (*base_col, 1); p.inputs['Roughness'].default_value = 0.2
-    p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.14
+    p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.05
     bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 90.0
     nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.08
     groove = Mth(nt, 'MULTIPLY', core, vb=-1.0); nt.links.new(groove, bump.inputs['Height']) if False else None
@@ -390,11 +397,12 @@ def spot(name, loc, target, col, energy, size, ang=40):
     L.spot_size = math.radians(ang); L.spot_blend = 0.6
     o = link(bpy.data.objects.new(name, L)); o.location = loc
     o.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler(); return o
-key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.85, 0.92), 1600, 3.2, 50)
+key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.88, 0.94), 1100, 0.35, 50)
+fill = spot('fill', (3.5, -4.5, 1.0), (0, 0, 0.3), (0.65, 0.4, 1.0), 450, 2.5, 60)
 rim = spot('rim', (2.8, -0.9, 3.6), (0, 0, 0.3), (0.75, 0.25, 1.0), 2400, 0.8, 45)
 rim2 = spot('rim2', (-3.0, -0.7, -2.4), (0, 0, 0.3), (0.55, 0.3, 1.0), 1400, 0.8, 45)       # second magenta rim from below
 under = spot('under', (0.0, -3.0, -3.0), (0, 0, 0.0), (0.2, 1.0, 0.35), 110, 4.0, 60)     # green bounce from the code
-TRACK = [key, rim, rim2, under]
+TRACK = [key, fill, rim, rim2, under]
 TRACK_OFF = [o.location.copy() for o in TRACK]
 
 # ---------------------------------------------------------------- camera
@@ -402,15 +410,15 @@ cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); link(cam); sc.ca
 cam.data.sensor_fit = 'VERTICAL'; cam.data.sensor_height = 36.0
 cam.data.dof.use_dof = True; cam.data.dof.aperture_blades = 7
 KEYS = [  # t, cam pos, target, lens(vertical), fstop
-    (0.0, (0.25, -5.6, 2.9), (0.0, 0.0, 2.6), 30, 4.0),
-    (2.0, (0.2, -5.4, 2.6), (0.0, 0.0, 2.3), 30, 4.0),
-    (5.0, (0.0, -4.6, 1.3), (0.02, -0.2, 0.9), 32, 3.2),
-    (7.6, (3.3, -2.7, 1.2), (-0.02, -0.3, 0.2), 34, 2.8),
-    (9.4, (3.1, -1.9, 0.0), (-0.12, -0.3, -0.3), 36, 2.6),
-    (11.6, (0.4, -5.6, 0.2), (-0.1, -0.1, -0.3), 26, 3.5),
-    (12.7, (-0.1, -1.75, -1.75), (-0.12, -0.3, -0.62), 28, 2.4),
-    (13.25, (-0.11, -1.35, -1.45), (-0.12, -0.3, -0.6), 30, 2.2),
-    (14.0, (-0.11, -1.3, -1.42), (-0.12, -0.3, -0.6), 30, 2.2)]
+    (0.0, (0.25, -5.6, 2.9), (0.0, 0.0, 2.6), 30, 9.0),
+    (2.0, (0.2, -5.4, 2.6), (0.0, 0.0, 2.3), 30, 9.0),
+    (5.0, (0.0, -4.6, 1.3), (0.02, -0.2, 0.9), 32, 8.0),
+    (7.6, (3.3, -2.7, 1.2), (-0.02, -0.3, 0.2), 34, 7.0),
+    (9.4, (3.1, -1.9, 0.0), (-0.12, -0.3, -0.3), 36, 6.5),
+    (11.6, (0.4, -5.6, 0.2), (-0.1, -0.1, -0.3), 26, 9.0),
+    (12.7, (-0.1, -1.75, -1.75), (-0.12, -0.3, -0.62), 28, 5.0),
+    (13.25, (-0.11, -1.35, -1.45), (-0.12, -0.3, -0.6), 30, 4.5),
+    (14.0, (-0.11, -1.3, -1.42), (-0.12, -0.3, -0.6), 30, 4.5)]
 def lerp(a, b, u): return tuple(a[i] + (b[i] - a[i]) * u for i in range(len(a)))
 def cam_at(t):
     for a, b in zip(KEYS, KEYS[1:]):
@@ -484,7 +492,7 @@ def set_time(t):
     focus = c if t > 2.4 else np.array([0.0, 0.0, 2.3])
     cam.data.dof.focus_distance = float(np.linalg.norm(np.array(camp) - focus))
     # blackout at the very end
-    sc.view_settings.exposure = -10.0 * smooth01((t - 13.62) / 0.12)
+    sc.view_settings.exposure = -0.9 - 10.0 * smooth01((t - 13.62) / 0.12)
 
 if __name__ == '__main__':
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
