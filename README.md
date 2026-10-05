@@ -11,6 +11,8 @@ and the sound is synthesized or played from open samples.
 | 01 | [Fly on Note G](builds/01-fly-note-g) | A fruit fly walks Ada Lovelace's Note G (1843) and lights up the words it touches | Canvas, Playwright, numpy audio |
 | 02 | [Fly plays Für Elise](builds/02-fly-fur-elise) | A fly on a grand piano, rendered in Blender Cycles | Blender (bpy), ffmpeg |
 | 03 | [Snake arena](builds/03-snake-arena) | Three decision models play Snake on one board. Every move is a real API call, every answer is logged | Python, Canvas, ffmpeg |
+| 04 | [Fly under the UFO](builds/04-fly-ufo) | A giant fruit fly in a UFO beam; the head opens and the brain lights up | Blender (bpy), numpy audio |
+| 05 | [Code scanner](builds/05-spider-code) | A spider crawls down a wall of code and turns it red | Blender (bpy), numpy audio |
 
 ## How every build works
 
