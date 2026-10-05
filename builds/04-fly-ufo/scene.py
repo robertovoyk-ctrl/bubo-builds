@@ -401,7 +401,7 @@ for s in (-1, 1):
         q = tip.lerp(arpts[-1], i / 9)
         br.append(tube(f'arb{s}{i}', [q, q + Vector((s * 0.03, -0.02, -0.035 if i % 2 else 0.04))], 0.003, 0.0015, dark, 4))
     for ob in [a, ar] + br:
-        ob.parent = fp; ob.matrix_parent_inverse = fp.matrix_world.inverted()
+        ob.parent = fp; ob.matrix_parent_inverse = Matrix.Translation(fp.location).inverted()   # fp.matrix_world is not updated yet here
 ocM = principled('ocelli', (0.6, 0.15, 0.05), rough=0.15, coat=1.0)
 hr = np.random.RandomState(31)
 TOPP = min((p_ for p_ in PANELS if p_[3][1] == 1), key=lambda p_: (p_[1] - (HEAD_C + Vector((0, 0, HR[2])))).length)[0]
