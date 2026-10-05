@@ -88,7 +88,8 @@ def hash1(x, seed):
     wn = nt.nodes.new('ShaderNodeTexWhiteNoise'); wn.noise_dimensions = '1D'
     nt.links.new(Mth(nt, 'ADD', x, vb=seed), wn.inputs['W']); return wn.outputs['Value']
 h_off, h_spd, h_rev, h_dim = hash1(rowg, 0.0), hash1(rowg, 17.3), hash1(rowg, 41.9), hash1(rowg, 73.1)
-speed = Mth(nt, 'MULTIPLY', Mth(nt, 'SUBTRACT', h_spd, vb=0.5), vb=0.9)          # rows drift both ways
+hs_ = Mth(nt, 'SUBTRACT', h_spd, vb=0.5)
+speed = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', hs_, vb=0.16), Mth(nt, 'MULTIPLY', Mth(nt, 'SIGN', hs_), vb=0.035))   # every row slides sideways, both ways
 u = Mth(nt, 'ADD', Mth(nt, 'DIVIDE', X_, vb=ROW_W), Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', h_off, vb=13.0), Mth(nt, 'MULTIPLY', speed, T)))
 u = Mth(nt, 'FRACT', u)
 rloc = Mth(nt, 'MODULO', Mth(nt, 'ADD', rowg, vb=6400.0), vb=float(ROWS_ATLAS))
@@ -136,8 +137,15 @@ ad = nt.nodes.new('ShaderNodeAddShader'); nt.links.new(em.outputs[0], ad.inputs[
 WALL_W, WALL_H = 14.0, 22.0
 wall = mesh_obj('wall', [(-WALL_W / 2, 0, -WALL_H / 2), (WALL_W / 2, 0, -WALL_H / 2), (WALL_W / 2, 0, WALL_H / 2), (-WALL_W / 2, 0, WALL_H / 2)], [(0, 1, 2, 3)], wallM, smooth=False)
 # deeper layers of code behind, seen through nothing: they peek past the edges in the side shot
-wallM2 = wallM.copy(); wall2 = mesh_obj('wall_far', [(-14, 6, -16), (14, 6, -16), (14, 6, 16), (-14, 6, 16)], [(0, 1, 2, 3)], wallM2, smooth=False)
-wall2.hide_render = True
+floatM = wallM.copy(); floatM.name = 'codefloat'; fnt = floatM.node_tree
+_dk = [n for n in fnt.nodes if n.type == 'BSDF_PRINCIPLED'][0]; _ad = [n for n in fnt.nodes if n.type == 'ADD_SHADER'][0]
+_tr = fnt.nodes.new('ShaderNodeBsdfTransparent'); fnt.links.new(_tr.outputs[0], _ad.inputs[1]); fnt.nodes.remove(_dk)
+fr_ = np.random.RandomState(31); FLOATS = []
+for k in range(42):
+    w_ = fr_.uniform(0.5, 1.6); x_ = fr_.uniform(-3.0, 3.0); y_ = fr_.uniform(-2.8, -0.9)
+    z_ = math.floor(fr_.uniform(-3.0, 4.5) / ROW_H) * ROW_H
+    o_ = mesh_obj(f'float{k}', [(-w_ / 2, 0, 0), (w_ / 2, 0, 0), (w_ / 2, 0, ROW_H), (-w_ / 2, 0, ROW_H)], [(0, 1, 2, 3)], floatM, smooth=False)
+    o_.location = (x_, y_, z_); o_.visible_shadow = False; FLOATS.append((o_, x_, fr_.uniform(-0.12, 0.12)))
 
 # ---------------------------------------------------------------- spider materials
 def hairy_mat(name, base, edge, es0, es1, sss=0.8):
@@ -159,8 +167,14 @@ def leg_material():
     zg = sz.outputs['Z']
     band = Mth(nt, 'MAXIMUM', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', zg, vb=0.07), clamp=True),
                Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', Mth(nt, 'SUBTRACT', va=1.0, b=zg), vb=0.07), clamp=True))
+    gn = nt.nodes.new('ShaderNodeNewGeometry'); vt = nt.nodes.new('ShaderNodeVectorTransform'); vt.vector_type = 'NORMAL'
+    vt.convert_from = 'WORLD'; vt.convert_to = 'OBJECT'; nt.links.new(gn.outputs['Normal'], vt.inputs[0])
+    sx = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(vt.outputs[0], sx.inputs[0])
+    top = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', sx.outputs['X'], vb=0.5), vb=0.5, clamp=True)
+    tb = nt.nodes.new('ShaderNodeMix'); tb.data_type = 'RGBA'; nt.links.new(top, tb.inputs['Factor'])
+    tb.inputs[6].default_value = (0.16, 0.0, 0.035, 1); tb.inputs[7].default_value = (1.0, 0.04, 0.22, 1)
     cm = nt.nodes.new('ShaderNodeMix'); cm.data_type = 'RGBA'; nt.links.new(band, cm.inputs['Factor'])
-    cm.inputs[6].default_value = (0.85, 0.0, 0.1, 1); cm.inputs[7].default_value = (0.15, 0.0, 0.03, 1)
+    nt.links.new(tb.outputs[2], cm.inputs[6]); cm.inputs[7].default_value = (0.15, 0.0, 0.03, 1)
     p = nt.nodes.new('ShaderNodeBsdfPrincipled'); nt.links.new(cm.outputs[2], p.inputs['Base Color'])
     p.inputs['Roughness'].default_value = 0.38
     p.inputs['Subsurface Weight'].default_value = 0.35; p.inputs['Subsurface Radius'].default_value = (1.0, 0.05, 0.15)
@@ -169,7 +183,8 @@ def leg_material():
     bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 60.0
     nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.06; nt.links.new(bump.outputs[0], p.inputs['Normal'])
     lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.5
-    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.2), vb=2.0), vb=0.22)
+    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.4), vb=1.5), vb=0.12)
+    es = Mth(nt, 'ADD', es, Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', top, vb=2.0), vb=0.22))          # inner glow on the lit top
     es = Mth(nt, 'MULTIPLY', es, Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'MULTIPLY', band, vb=0.8)))
     p.inputs['Emission Color'].default_value = (1.0, 0.04, 0.26, 1); nt.links.new(es, p.inputs['Emission Strength'])
     nt.links.new(p.outputs[0], out.inputs[0]); return m
@@ -209,18 +224,18 @@ def vein_mat(name, scale, core_w, base_col, edge_glow):
     halo = Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', dist, vb=core_w * 4.0), clamp=True), vb=3.0)
     p = nt.nodes.new('ShaderNodeBsdfPrincipled')
     p.inputs['Base Color'].default_value = (*base_col, 1); p.inputs['Roughness'].default_value = 0.2
-    p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.04
+    p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.14
     bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 90.0
     nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.08
     groove = Mth(nt, 'MULTIPLY', core, vb=-1.0); nt.links.new(groove, bump.inputs['Height']) if False else None
     nt.links.new(bump.outputs[0], p.inputs['Normal'])
     lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.3
     rimg = Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', lw.outputs['Fresnel'], vb=2.0), vb=edge_glow)
-    em = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', core, vb=4.0), Mth(nt, 'MULTIPLY', halo, vb=0.3)), B), rimg)
+    em = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', core, vb=4.0), Mth(nt, 'MULTIPLY', halo, vb=0.18)), B), rimg)
     p.inputs['Emission Color'].default_value = (1.0, 0.03, 0.2, 1); nt.links.new(em, p.inputs['Emission Strength'])
     nt.links.new(p.outputs[0], out.inputs[0]); return m
-abdM = vein_mat('abdomen', 2.5, 0.045, (0.004, 0.003, 0.005), 0.5)
-cepM = vein_mat('carapace', 3.2, 0.035, (0.012, 0.006, 0.008), 1.6)
+abdM = vein_mat('abdomen', 2.5, 0.06, (0.004, 0.003, 0.005), 0.5)
+cepM = vein_mat('carapace', 3.2, 0.035, (0.012, 0.006, 0.008), 2.6); cepM.node_tree.nodes['B'].outputs[0].default_value = 0.12
 eyeM = bpy.data.materials.new('eye'); nt, out = nodes(eyeM)
 p = nt.nodes.new('ShaderNodeBsdfPrincipled'); p.inputs['Base Color'].default_value = (0.001, 0.001, 0.0015, 1); p.inputs['Roughness'].default_value = 0.03
 p.inputs['Coat Weight'].default_value = 1.0; p.inputs['Coat Roughness'].default_value = 0.0
@@ -258,7 +273,7 @@ abd = ellipsoid('abdomen', (0, -0.47, 0.16), (0.37, 0.4, 0.35), abdM, 96, 48, pa
 for v in abd.data.vertices:                       # slightly fuller at the rear, like the reference
     x, y, z = v.co; k = 1.0 + 0.08 * (-y / 0.44); v.co.x = x * k; v.co.z = z * k
 ellipsoid('petiole', (0, -0.08, 0.06), (0.045, 0.07, 0.045), legM, 24, 12, parent=BODY)
-for (x, y, z, r) in [(0.052, 0.39, 0.105, 0.05), (-0.052, 0.39, 0.105, 0.05), (0.115, 0.355, 0.118, 0.026), (-0.115, 0.355, 0.118, 0.026),
+for (x, y, z, r) in [(0.06, 0.395, 0.1, 0.066), (-0.06, 0.395, 0.1, 0.066), (0.115, 0.355, 0.118, 0.026), (-0.115, 0.355, 0.118, 0.026),
                      (0.045, 0.335, 0.16, 0.024), (-0.045, 0.335, 0.16, 0.024), (0.13, 0.3, 0.14, 0.02), (-0.13, 0.3, 0.14, 0.02)]:
     ellipsoid('eye', (x, y, z), (r, r, r * 0.9), eyeM, 32, 16, parent=BODY)
 for s in (-1, 1):
@@ -375,7 +390,7 @@ def spot(name, loc, target, col, energy, size, ang=40):
     L.spot_size = math.radians(ang); L.spot_blend = 0.6
     o = link(bpy.data.objects.new(name, L)); o.location = loc
     o.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler(); return o
-key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.85, 0.92), 1600, 1.5, 50)
+key = spot('key', (-2.5, -4.0, 4.0), (0, 0, 0.5), (1.0, 0.85, 0.92), 1600, 3.2, 50)
 rim = spot('rim', (2.8, -0.9, 3.6), (0, 0, 0.3), (0.75, 0.25, 1.0), 2400, 0.8, 45)
 rim2 = spot('rim2', (-3.0, -0.7, -2.4), (0, 0, 0.3), (0.55, 0.3, 1.0), 1400, 0.8, 45)       # magenta rim like the reference
 under = spot('under', (0.0, -3.0, -3.0), (0, 0, 0.0), (0.2, 1.0, 0.35), 110, 4.0, 60)     # green bounce from the code
@@ -448,6 +463,9 @@ def set_time(t):
     wn['REV'].outputs[0].default_value = 1.15 * smooth01((t - 0.15) / 1.9)
     ic = path(9.5); wn['IX'].outputs[0].default_value = ic[0]; wn['IY'].outputs[0].default_value = 0.0; wn['IZ'].outputs[0].default_value = ic[1]
     wn['INF_R'].outputs[0].default_value = 7.5 * smooth01((t - 9.6) / 2.6) ** 1.3
+    for n_ in wallM.node_tree.nodes:
+        if n_.type == 'VALUE': floatM.node_tree.nodes[n_.name].outputs[0].default_value = n_.outputs[0].default_value
+    for (o_, x0_, vx_) in FLOATS: o_.location.x = x0_ + vx_ * t
     # abdomen veins pulse with the steps, flare during the infection
     pulse = 0.5 + 0.5 * math.sin(2 * math.pi * t / TS)
     abdM.node_tree.nodes['B'].outputs[0].default_value = 0.8 + 0.5 * pulse + 2.5 * smooth01((t - 9.4) / 0.6) * (1 - 0.6 * smooth01((t - 11.0) / 1.5))
