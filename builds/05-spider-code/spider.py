@@ -153,7 +153,27 @@ def hairy_mat(name, base, edge, es0, es1, sss=0.8):
     es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.5), vb=es1), vb=es0)
     p.inputs['Emission Color'].default_value = (*edge, 1); nt.links.new(es, p.inputs['Emission Strength'])
     nt.links.new(p.outputs[0], out.inputs[0]); return m
-legM = hairy_mat('leg', (1.0, 0.0, 0.1), (1.0, 0.04, 0.24), 0.12, 2.2)
+def leg_material():
+    m = bpy.data.materials.new('leg'); nt, out = nodes(m)
+    tc = nt.nodes.new('ShaderNodeTexCoord'); sz = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(tc.outputs['Generated'], sz.inputs[0])
+    zg = sz.outputs['Z']
+    band = Mth(nt, 'MAXIMUM', Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', zg, vb=0.07), clamp=True),
+               Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'DIVIDE', Mth(nt, 'SUBTRACT', va=1.0, b=zg), vb=0.07), clamp=True))
+    cm = nt.nodes.new('ShaderNodeMix'); cm.data_type = 'RGBA'; nt.links.new(band, cm.inputs['Factor'])
+    cm.inputs[6].default_value = (0.85, 0.0, 0.1, 1); cm.inputs[7].default_value = (0.15, 0.0, 0.03, 1)
+    p = nt.nodes.new('ShaderNodeBsdfPrincipled'); nt.links.new(cm.outputs[2], p.inputs['Base Color'])
+    p.inputs['Roughness'].default_value = 0.38
+    p.inputs['Subsurface Weight'].default_value = 0.35; p.inputs['Subsurface Radius'].default_value = (1.0, 0.05, 0.15)
+    p.inputs['Subsurface Scale'].default_value = 0.05
+    p.inputs['Coat Weight'].default_value = 0.2; p.inputs['Coat Roughness'].default_value = 0.25
+    bump = nt.nodes.new('ShaderNodeBump'); bn = nt.nodes.new('ShaderNodeTexNoise'); bn.inputs['Scale'].default_value = 60.0
+    nt.links.new(bn.outputs['Fac'], bump.inputs['Height']); bump.inputs['Strength'].default_value = 0.06; nt.links.new(bump.outputs[0], p.inputs['Normal'])
+    lw = nt.nodes.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.5
+    es = Mth(nt, 'ADD', Mth(nt, 'MULTIPLY', Mth(nt, 'POWER', Mth(nt, 'SUBTRACT', va=1.0, b=lw.outputs['Facing']), vb=2.2), vb=2.0), vb=0.22)
+    es = Mth(nt, 'MULTIPLY', es, Mth(nt, 'SUBTRACT', va=1.0, b=Mth(nt, 'MULTIPLY', band, vb=0.8)))
+    p.inputs['Emission Color'].default_value = (1.0, 0.04, 0.26, 1); nt.links.new(es, p.inputs['Emission Strength'])
+    nt.links.new(p.outputs[0], out.inputs[0]); return m
+legM = leg_material()
 hairM = bpy.data.materials.new('hair'); nt, out = nodes(hairM)          # fine hair: glows when backlit
 hp = nt.nodes.new('ShaderNodeBsdfPrincipled'); hp.inputs['Roughness'].default_value = 0.45
 hi = nt.nodes.new('ShaderNodeHairInfo'); hcm = nt.nodes.new('ShaderNodeMix'); hcm.data_type = 'RGBA'
@@ -247,26 +267,33 @@ for s in (-1, 1):
     ellipsoid('fang', (s * 0.05, 0.45, -0.085), (0.014, 0.014, 0.035), tipM, 12, 8, parent=BODY)
 
 # ---------------------------------------------------------------- legs: shaped, curved, furry segments posed every frame
-def seg_mesh(name, L, r0, r1, mat, bulge=0.18, bend=0.0, fur=(500, 0.03), spines=12, tip=False):
-    V, F = [], []; sides, rings = 14, 22
+def seg_mesh(name, L, r0, r1, mat, bulge=0.18, bend=0.0, fur=(80, 0.032), spines=10, tip=False):
+    V, F = [], []; sides, rings = 18, 30; TOP = []
     for j in range(rings + 1):
         u = j / rings; zz = L * u
-        rr = (r0 + (r1 - r0) * u) * (1.0 + bulge * math.sin(math.pi * u) ** 0.8) * (1.0 - 0.18 * max(0.0, 1 - u / 0.06) - 0.12 * max(0.0, (u - 0.94) / 0.06))
-        cx = bend * L * math.sin(math.pi * u)                  # arc toward local +X
+        neck = 1.0 - 0.32 * max(0.0, 1 - u / 0.08) ** 1.5 - 0.22 * max(0.0, (u - 0.92) / 0.08) ** 1.5
+        rr = (r0 + (r1 - r0) * u) * (1.0 + bulge * math.sin(math.pi * u) ** 0.8) * neck
+        cx = bend * L * math.sin(math.pi * u)                  # arc toward local +X (away from the wall)
         for k in range(sides):
-            a = k / sides * 2 * math.pi; V.append((cx + rr * math.cos(a), rr * math.sin(a), zz))
+            a = k / sides * 2 * math.pi; V.append((cx + rr * 1.12 * math.cos(a), rr * 0.88 * math.sin(a), zz))
+            TOP.append(max(0.0, math.cos(a)) ** 3 * (0.0 if u < 0.08 or u > 0.95 else 1.0))
     for j in range(rings):
         for k in range(sides):
             F.append((j * sides + k, j * sides + (k + 1) % sides, (j + 1) * sides + (k + 1) % sides, (j + 1) * sides + k))
-    V.append((0, 0, 0)); V.append((0, 0, L)); c0, c1 = len(V) - 2, len(V) - 1
+    V.append((0, 0, 0)); V.append((0, 0, L)); c0, c1 = len(V) - 2, len(V) - 1; TOP += [0.0, 0.0]
     for k in range(sides):
         F.append((c0, (k + 1) % sides, k)); F.append((c1, rings * sides + k, rings * sides + (k + 1) % sides))
     o = mesh_obj(name, V, F, mat)
-    if fur: add_hair(o, fur[0], fur[1], 0.0009 if not tip else 0.0006, 6, spines)
+    vg = o.vertex_groups.new(name='top')
+    for idx, w in enumerate(TOP):
+        if w > 0.01: vg.add([idx], w, 'REPLACE')
+    if fur:
+        add_hair(o, fur[0], fur[1], 0.0011 if not tip else 0.0007, 0, spines, lean=0.9)
+        o.modifiers['fur'].particle_system.vertex_group_density = 'top'
     return o
 
 LEGS = []
-spec = [(28, 22, 1.85, 1.02, 1.42), (62, 58, 1.68, 0.94, 1.28), (104, 112, 1.14, 0.64, 0.86), (140, 158, 1.56, 0.88, 1.2)]
+spec = [(28, 22, 1.66, 1.02, 1.42), (62, 58, 1.5, 0.94, 1.28), (104, 112, 1.02, 0.64, 0.86), (140, 158, 1.4, 0.88, 1.2)]
 for s in (-1, 1):
     for i, (ha, fa, reach, L1, L2) in enumerate(spec):
         hip = np.array([s * 0.17 * math.sin(math.radians(ha)), 0.15 + 0.21 * math.cos(math.radians(ha)), -0.01])
@@ -274,16 +301,16 @@ for s in (-1, 1):
         g = (i + (0 if s < 0 else 1)) % 2
         tib, met = 0.47 * L2, 0.43 * L2
         lt = math.hypot(tib, 0.05 * L2); lm = math.hypot(met, 0.04 * L2); lta = math.hypot(L2 - tib - met, 0.01 * L2)
-        segs = [seg_mesh(f'femur{s}{i}', L1, 0.029, 0.024, legM, 0.2, 0.09, (int(1300 * L1), 0.026), 14),
-                seg_mesh(f'tibia{s}{i}', lt, 0.023, 0.018, legM, 0.12, 0.05, (int(1200 * lt), 0.024), 10),
-                seg_mesh(f'meta{s}{i}', lm, 0.016, 0.01, legM, 0.06, 0.015, (int(900 * lm), 0.018), 6),
-                seg_mesh(f'tarsus{s}{i}', lta, 0.009, 0.004, tipM, 0.05, 0.0, (60, 0.01), 0, True)]
-        joints = [ellipsoid(f'j{s}{i}{k}', (0, 0, 0), (r, r, r), legM, 20, 10) for k, r in enumerate((0.03, 0.024, 0.018, 0.012))]
+        segs = [seg_mesh(f'femur{s}{i}', L1, 0.034, 0.028, legM, 0.16, 0.07, (int(110 * L1), 0.034), 10),
+                seg_mesh(f'tibia{s}{i}', lt, 0.028, 0.022, legM, 0.1, 0.04, (int(110 * lt), 0.03), 8),
+                seg_mesh(f'meta{s}{i}', lm, 0.019, 0.012, legM, 0.05, 0.015, (int(90 * lm), 0.024), 5),
+                seg_mesh(f'tarsus{s}{i}', lta, 0.011, 0.005, tipM, 0.05, 0.0, (14, 0.012), 0, True)]
+        joints = [ellipsoid(f'j{s}{i}{k}', (0, 0, 0), (r, r, r), legM, 20, 10) for k, r in enumerate((0.03, 0.026, 0.019, 0.012))]
         LEGS.append(dict(s=s, i=i, hip=hip, rest=rest, L1=L1, L2=L2, g=g, segs=segs, joints=joints, tib=tib, met=met))
 PALPS = []
 for s in (-1, 1):
-    a = seg_mesh(f'palpA{s}', 0.2, 0.02, 0.017, legM, 0.15, 0.04, (220, 0.016), 4)
-    b = seg_mesh(f'palpB{s}', 0.17, 0.017, 0.013, legM, 0.12, 0.04, (180, 0.016), 4)
+    a = seg_mesh(f'palpA{s}', 0.2, 0.024, 0.02, legM, 0.12, 0.05, (30, 0.022), 3)
+    b = seg_mesh(f'palpB{s}', 0.17, 0.02, 0.016, legM, 0.1, 0.05, (26, 0.022), 3)
     PALPS.append((s, a, b))
 
 def frame_from(p0, p1, x_hint):
