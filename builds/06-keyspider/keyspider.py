@@ -5,11 +5,13 @@ Scans every file in the working tree and every line ever added in the git histor
 Prints findings masked (never the full secret) and can write a JSON report.
 
 usage:
-  python3 keyspider.py <path-or-git-url> [--json report.json] [--no-history]
+  python3 keyspider.py <path-or-git-url> [--json report.json] [--no-history] [--verify]
 
-Scan only repositories you own or are allowed to audit.
+--verify asks each provider, with one read-only request, whether the key still works.
+That sends the key to its own provider, nowhere else. Scan only repositories you own
+or are allowed to audit, and use --verify only on keys that are yours.
 """
-import argparse, json, math, os, re, subprocess, sys, tempfile
+import argparse, base64, json, math, os, re, subprocess, sys, tempfile, urllib.error, urllib.request
 
 PATTERNS = [  # (kind, regex). Specific providers first, generic last.
     ('Anthropic API key', r'sk-ant-[A-Za-z0-9_\-]{20,}'),
@@ -44,6 +46,45 @@ def low(f):
 def mask(s):
     s = s.strip()
     return s[:6] + '…' + f'[{len(s)} chars]' if len(s) > 10 else s[:2] + '…'
+
+# --verify: one read-only request per key to the provider that issued it.
+# 2xx means the key works, 401/403 means it is dead, anything else is unknown.
+def _req(url, headers=None, data=None):
+    r = urllib.request.Request(url, headers={'User-Agent': 'keyspider', **(headers or {})}, data=data)
+    try:
+        with urllib.request.urlopen(r, timeout=10) as resp:
+            return resp.status, resp.read(4096)
+    except urllib.error.HTTPError as e:
+        return e.code, b''
+    except Exception:
+        return None, b''
+
+def _bearer(url):
+    return lambda k: _req(url, {'Authorization': f'Bearer {k}'})
+
+CHECKS = {
+    'OpenAI API key': _bearer('https://api.openai.com/v1/models'),
+    'Anthropic API key': lambda k: _req('https://api.anthropic.com/v1/models', {'x-api-key': k, 'anthropic-version': '2023-06-01'}),
+    'GitHub token': lambda k: _req('https://api.github.com/user', {'Authorization': f'token {k}'}),
+    'GitHub fine-grained token': lambda k: _req('https://api.github.com/user', {'Authorization': f'token {k}'}),
+    'Stripe live key': lambda k: _req('https://api.stripe.com/v1/balance', {'Authorization': 'Basic ' + base64.b64encode(f'{k}:'.encode()).decode()}),
+    'Google API key': lambda k: _req(f'https://generativelanguage.googleapis.com/v1beta/models?key={k}'),
+    'Telegram bot token': lambda k: _req(f'https://api.telegram.org/bot{k}/getMe'),
+    'Slack token': lambda k: _req('https://slack.com/api/auth.test', {'Authorization': f'Bearer {k}'}, data=b''),
+}
+
+def verify(kind, secret):
+    """'works', 'dead', 'unknown' or 'not checked' (no safe check for this kind)"""
+    check = CHECKS.get(kind)
+    if not check: return 'not checked'
+    status, body = check(secret.strip())
+    if status is None: return 'unknown'
+    if kind == 'Slack token':          # Slack answers 200 with ok:false for bad tokens
+        return 'works' if b'"ok":true' in body else 'dead'
+    if 200 <= status < 300: return 'works'
+    if status in (401, 403): return 'dead'
+    if status in (400, 404) and kind in ('Google API key', 'Telegram bot token'): return 'dead'
+    return 'unknown'
 
 def scan_line(line):
     hits, spans = [], []
@@ -95,6 +136,7 @@ def main():
     ap.add_argument('target', help='local path or git URL')
     ap.add_argument('--json', help='write a JSON report (secrets masked)')
     ap.add_argument('--no-history', action='store_true', help='skip the git history')
+    ap.add_argument('--verify', action='store_true', help='ask each provider (one read-only request) whether the key still works')
     a = ap.parse_args()
     root, tmp = a.target, None
     if re.match(r'^(https?://|git@)', a.target):
@@ -113,16 +155,27 @@ def main():
     for f in files + ghosts: f['level'] = 'low' if low(f) else 'high'
     hi_f = [f for f in files if f['level'] == 'high']; hi_g = [g for g in ghosts if g['level'] == 'high']
     lows = [f for f in files + ghosts if f['level'] == 'low']
+    if a.verify:                        # one request per distinct key, never for low findings
+        cache = {}
+        for f in hi_f + hi_g:
+            k = (f['kind'], f['secret'])
+            if k not in cache: cache[k] = verify(*k)
+            f['works'] = cache[k]
+    tag = {'works': f'  {R}{B}KEY WORKS{Z}', 'dead': f'  {D}key is dead{Z}', 'unknown': f'  {D}could not check{Z}', 'not checked': f'  {D}no safe check for this kind{Z}'}
     print(f'{B}keyspider{Z}  {a.target}')
     for f in hi_f:
-        print(f'{R}LIVE{Z}     {f["file"]}:{f["line"]}  {f["kind"]}  {mask(f["secret"])}')
+        print(f'{R}LIVE{Z}     {f["file"]}:{f["line"]}  {f["kind"]}  {mask(f["secret"])}' + tag.get(f.get('works'), ''))
     for g in hi_g:
-        print(f'{Y}DELETED{Z}  {g["file"]}  commit {g["commit"]} ({g["date"]})  {g["kind"]}  {mask(g["secret"])}  {D}still in git history{Z}')
+        print(f'{Y}DELETED{Z}  {g["file"]}  commit {g["commit"]} ({g["date"]})  {g["kind"]}  {mask(g["secret"])}  {D}still in git history{Z}' + tag.get(g.get('works'), ''))
     for f in lows:
         where = f'{f["file"]}:{f["line"]}' if f['where'] == 'file' else f'{f["file"]}  commit {f["commit"]}'
         print(f'{D}low      {where}  {f["kind"]}  {mask(f["secret"])}  (tests/docs/template){Z}')
     total = len(hi_f) + len(hi_g)
     print(f'\n{B}{len(hi_f)} live, {len(hi_g)} deleted but still in history{Z}  {D}+{len(lows)} low{Z}' if total or lows else f'\n{B}clean: nothing found{Z}')
+    if a.verify and total:
+        c = lambda s: sum(1 for f in hi_f + hi_g if f.get('works') == s)
+        n, d, u = c('works'), c('dead'), c('unknown') + c('not checked')
+        print((f'{R}{B}{n} still work right now.{Z} ' if n else '') + f'{D}{d} dead, {u} not confirmed either way.{Z}')
     if hi_g:
         print(f'{D}deleting a key from a file does not remove it from git. rotate it.{Z}')
     if a.json:

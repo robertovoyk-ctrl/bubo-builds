@@ -26,10 +26,22 @@ Anthropic, OpenAI, Perplexity, AWS, GitHub, Stripe, Slack, Google and Telegram k
 python3 keyspider.py <path-or-git-url>            # files + full git history
 python3 keyspider.py . --json report.json         # also write a masked JSON report
 python3 keyspider.py . --no-history               # working tree only
+python3 keyspider.py . --verify                   # also check which keys still work
 ./demo.sh                                         # throwaway repo with fake keys
 ```
 
 Exit code is 1 when something real is found, so it can run in CI.
+
+## Does the key still work?
+
+With `--verify`, keyspider sends each key it found to the provider that issued it, with one read-only request (list models, read the account, `getMe`), and tags the line:
+
+```
+DELETED  config.py  commit c0d6f8c2f7  OpenAI API key  sk-pro…[56 chars]  still in git history  KEY WORKS
+LIVE     bot.py:3   Telegram bot token  712345…[46 chars]  key is dead
+```
+
+Checked: OpenAI, Anthropic, GitHub, Stripe, Google, Telegram, Slack. Other kinds (AWS needs a second secret, passwords have no provider) are marked as not checked. A network error or rate limit is "could not check", never "dead". The key goes only to its own provider, and the request never changes anything there. Use `--verify` only on keys that are yours. A dead key in history is still worth cleaning up; a working one means rotate now.
 
 Python 3 and git, nothing else. Scan only repositories you own or are allowed to audit.
 
