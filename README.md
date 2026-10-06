@@ -15,6 +15,7 @@ and the sound is synthesized or played from open samples.
 | 05 | [Code scanner](builds/05-spider-code) | A spider crawls down a wall of code and turns it red | Blender (bpy), numpy audio |
 | 06 | [keyspider](builds/06-keyspider) | Finds API keys and passwords in a git repo, including deleted ones still in history | Python, git |
 | 07 | [keyspider film](builds/07-keyspider-film) | The spider walks down real code and lights up the secrets keyspider found in it | Blender (bpy), Python, numpy audio |
+| 08 | [keyspider guard](builds/08-keyspider-guard) | The spider stops a commit with two secrets in it, they move to env, the commit goes through | Blender (bpy), Python, numpy audio |
 
 ## How every build works
 

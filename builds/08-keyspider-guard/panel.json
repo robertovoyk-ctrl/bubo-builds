@@ -1,0 +1,21 @@
+{
+ "rows": 33,
+ "cols": 92,
+ "findings": [
+  {
+   "row": 7,
+   "k": 1,
+   "label": "BLOCKED \u00b7 Stripe live key"
+  },
+  {
+   "row": 23,
+   "k": 2,
+   "label": "BLOCKED \u00b7 database password"
+  },
+  {
+   "row": 31,
+   "k": 3,
+   "label": ""
+  }
+ ]
+}
