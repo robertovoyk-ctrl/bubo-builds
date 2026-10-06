@@ -175,7 +175,7 @@ def main():
     if a.verify and total:
         c = lambda s: sum(1 for f in hi_f + hi_g if f.get('works') == s)
         n, d, u = c('works'), c('dead'), c('unknown') + c('not checked')
-        print((f'{R}{B}{n} still work right now.{Z} ' if n else '') + f'{D}{d} dead, {u} not confirmed either way.{Z}')
+        print((f'{R}{B}{n} still {"works" if n == 1 else "work"} right now.{Z} ' if n else '') + f'{D}{d} dead, {u} not confirmed either way.{Z}')
     if hi_g:
         print(f'{D}deleting a key from a file does not remove it from git. rotate it.{Z}')
     if a.json:
