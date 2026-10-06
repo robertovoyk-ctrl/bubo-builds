@@ -32,6 +32,27 @@ python3 keyspider.py . --verify                   # also check which keys still 
 
 Exit code is 1 when something real is found, so it can run in CI.
 
+## Stop it before the commit
+
+Finding a leaked key means it is already in git. The guard stops it one step earlier:
+
+```bash
+python3 keyspider.py /path/to/your/repo --install-hook
+```
+
+From then on every `git commit` in that repo is checked first, by you or by your coding agent. Only the lines the commit adds are scanned, so it takes a fraction of a second.
+
+```
+BLOCKED  app.py:4       Hardcoded db_password  8ik30q…[18 chars]
+BLOCKED  payments.py:3  Stripe live key        sk_liv…[40 chars]
+warning  tests/t.py:1   Hardcoded token        BJGXKd…[30 chars]
+
+keyspider stopped this commit: 2 secrets would have gone into git.
+move them to a .env file (listed in .gitignore) or an environment variable, then commit again.
+```
+
+Move the value out of the code (`stripe.api_key = os.environ["STRIPE_KEY"]`, the key itself in `.env`), commit again, and it passes. Tests, fixtures and docs only get a warning. It works in private repos and catches plain passwords too, which GitHub's push protection does not.
+
 ## Does the key still work?
 
 With `--verify`, keyspider sends each key it found to the provider that issued it, with one read-only request (list models, read the account, `getMe`), and tags the line:

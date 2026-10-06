@@ -6,6 +6,8 @@ Prints findings masked (never the full secret) and can write a JSON report.
 
 usage:
   python3 keyspider.py <path-or-git-url> [--json report.json] [--no-history] [--verify]
+  python3 keyspider.py <repo> --install-hook     # guard: block commits that add secrets
+  python3 keyspider.py <repo> --staged           # what the hook runs
 
 --verify asks each provider, with one read-only request, whether the key still works.
 That sends the key to its own provider, nowhere else. Scan only repositories you own
@@ -131,13 +133,62 @@ def scan_history(root):
                 out.append(dict(where='history', file=file, commit=commit[:10], date=date, kind=kind, secret=val, text=line[1:]))
     return out
 
+# ---------------------------------------------------------------- guard: stop secrets before they are committed
+def scan_staged(root):
+    """only the lines this commit adds (git diff --cached), with their new line numbers"""
+    diff = subprocess.run(['git', '-C', root, 'diff', '--cached', '-U0', '--no-color', '--no-ext-diff'],
+                          capture_output=True, text=True, errors='replace', check=True).stdout
+    out, file, ln = [], None, 0
+    for line in diff.splitlines():
+        if line.startswith('+++ '):
+            file = line[6:] if line.startswith('+++ b/') else None; continue
+        m = re.match(r'^@@ -\S+ \+(\d+)', line)
+        if m: ln = int(m.group(1)); continue
+        if line.startswith('+') and file:
+            if os.path.splitext(file)[1].lower() not in SKIP_EXT:
+                for kind, val in scan_line(line[1:]):
+                    out.append(dict(where='file', file=file, line=ln, kind=kind, secret=val, text=line[1:]))
+            ln += 1
+    return out
+
+def guard(root):
+    R, D, B, G, Z = '\033[91m', '\033[2m', '\033[1m', '\033[92m', '\033[0m'
+    if not sys.stderr.isatty(): R = D = B = G = Z = ''
+    found = scan_staged(root)
+    for f in found: f['level'] = 'low' if low(f) else 'high'
+    hi = [f for f in found if f['level'] == 'high']
+    for f in found:
+        tagc = f'{R}BLOCKED{Z} ' if f['level'] == 'high' else f'{D}warning {Z}'
+        print(f'{tagc} {f["file"]}:{f["line"]}  {f["kind"]}  {mask(f["secret"])}', file=sys.stderr)
+    if hi:
+        print(f'\n{R}{B}keyspider stopped this commit: {len(hi)} secret{"s" if len(hi) != 1 else ""} would have gone into git.{Z}', file=sys.stderr)
+        print(f'{D}move them to a .env file (listed in .gitignore) or an environment variable, then commit again.{Z}', file=sys.stderr)
+        sys.exit(1)
+    print(f'{G}keyspider: commit clean{Z}', file=sys.stderr)
+    sys.exit(0)
+
+def install_hook(root):
+    top = subprocess.run(['git', '-C', root, 'rev-parse', '--git-path', 'hooks'], capture_output=True, text=True, check=True).stdout.strip()
+    hooks = top if os.path.isabs(top) else os.path.join(root, top)
+    os.makedirs(hooks, exist_ok=True); path = os.path.join(hooks, 'pre-commit')
+    if os.path.exists(path) and 'keyspider' not in open(path, errors='replace').read():
+        sys.exit(f'{path} already exists and is not ours. Add this line to it instead:\n  python3 "{os.path.abspath(__file__)}" . --staged')
+    with open(path, 'w') as fh:
+        fh.write(f'#!/bin/sh\n# keyspider guard: blocks commits that add keys, tokens or passwords\nexec python3 "{os.path.abspath(__file__)}" . --staged\n')
+    os.chmod(path, 0o755)
+    print(f'keyspider guard installed: {path}\nevery commit in this repo is now checked before it is made.')
+
 def main():
     ap = argparse.ArgumentParser(description='find keys, tokens and passwords in a git repo, including deleted ones')
     ap.add_argument('target', help='local path or git URL')
     ap.add_argument('--json', help='write a JSON report (secrets masked)')
     ap.add_argument('--no-history', action='store_true', help='skip the git history')
     ap.add_argument('--verify', action='store_true', help='ask each provider (one read-only request) whether the key still works')
+    ap.add_argument('--staged', action='store_true', help='guard mode: scan only what is about to be committed, exit 1 to block it')
+    ap.add_argument('--install-hook', action='store_true', help='install the guard as this repo\'s git pre-commit hook')
     a = ap.parse_args()
+    if a.install_hook: install_hook(a.target); return
+    if a.staged: guard(a.target)
     root, tmp = a.target, None
     if re.match(r'^(https?://|git@)', a.target):
         tmp = tempfile.mkdtemp(prefix='keyspider_'); root = os.path.join(tmp, 'repo')
