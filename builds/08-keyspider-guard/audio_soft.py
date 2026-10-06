@@ -44,11 +44,15 @@ while k * TS < 11:
         if 2.15 < land < 10.7:
             put(pluck(scale[(k * 2 + g) % len(scale)], 0.045), land, -0.3 if g else 0.3)
     k += 1
-# found secrets: a soft low thump and a falling two-note bell
+# found secrets: a soft low thump and a warm muted two-note swell (no bell partials)
+def mellow(m, dur=1.6, g=0.08):
+    n = int(dur * SR); tt = np.arange(n) / SR; f = hz(m)
+    s = np.sin(2 * np.pi * f * tt) + 0.25 * np.sin(2 * np.pi * 2 * f * tt)
+    return lp(s * ss(0, 0.06, tt) * np.exp(-tt * 2.6), 900) * g
 for i, td in enumerate(DET):
     n = int(0.5 * SR); tt = np.arange(n) / SR
-    put(np.sin(2 * np.pi * 70 * tt * (1 - 0.3 * tt)) * np.exp(-tt * 9) * 0.22, td)
-    put(bell(76 - i, 1.8, 0.07), td, -0.2 + 0.2 * i); put(bell(72 - i, 1.8, 0.06), td + 0.12, 0.2 - 0.2 * i)
+    put(np.sin(2 * np.pi * 70 * tt * (1 - 0.3 * tt)) * np.exp(-tt * 9) * 0.2, td)
+    put(mellow(57 - i, 1.6, 0.09) + mellow(60 - i, 1.6, 0.06), td, -0.15 + 0.15 * i)
 # secrets move to env: two rising bells, then the clean chord blooms
 for i, tf in enumerate(FIXES):
     put(bell(72 + 4 * i, 2.0, 0.07, 0.6), tf, 0.25 - 0.5 * i); put(bell(79 + 4 * i, 2.0, 0.045, 0.4), tf + 0.09, 0.25 - 0.5 * i)
