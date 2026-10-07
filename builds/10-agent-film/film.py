@@ -17,7 +17,7 @@ sc.render.engine = 'CYCLES'
 sc.cycles.device = 'CPU'
 if os.environ.get('BUBO_GPU'):
     prefs = bpy.context.preferences.addons['cycles'].preferences
-    for typ in ('OPTIX', 'CUDA'):
+    for typ in ('OPTIX', 'CUDA', 'METAL'):
         try:
             prefs.compute_device_type = typ; prefs.get_devices()
             devs = [d for d in prefs.devices if d.type == typ]
