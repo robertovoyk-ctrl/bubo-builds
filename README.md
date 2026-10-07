@@ -16,6 +16,7 @@ and the sound is synthesized or played from open samples.
 | 06 | [keyspider](builds/06-keyspider) | Finds API keys and passwords in a git repo, including deleted ones still in history | Python, git |
 | 07 | [keyspider film](builds/07-keyspider-film) | The spider walks down real code and lights up the secrets keyspider found in it | Blender (bpy), Python, numpy audio |
 | 08 | [keyspider guard](builds/08-keyspider-guard) | The spider stops a commit with two secrets in it, they move to env, the commit goes through | Blender (bpy), Python, numpy audio |
+| 09 | [agent prompt](builds/09-agent-prompt) | A prompt that makes your coding agent audit a repo for leaked keys, deleted ones included | prompt, Python (PIL) card |
 
 ## How every build works
 
