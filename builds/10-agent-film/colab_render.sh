@@ -8,6 +8,11 @@ if [ ! -x /content/blender/blender ]; then
   mkdir -p /content/blender && tar -xf /tmp/b.tar.xz -C /content/blender --strip-components=1 || fail "blender unpack"
 fi
 pip -q install soundfile >/dev/null 2>&1
+# keep frames on Google Drive when it is mounted, so a disconnect never loses them and a rerun resumes
+if [ -d /content/drive/MyDrive ]; then
+  OUT=/content/drive/MyDrive/bubo/10-agent-film/full; mkdir -p "$OUT"; rm -rf full; ln -sfn "$OUT" full
+  echo "frames go to Google Drive: $OUT ($(ls "$OUT" | wc -l) already there)"
+fi
 python3 audio_soft.py || fail "audio"
 [ -f card.png ] && [ -f title.png ] || fail "card.png or title.png missing"
 BUBO_GPU=1 /content/blender/blender -b --python film.py -- full 0:336:1 ${RES:-1080} ${SPP:-32} frames > render.log 2>&1 &
@@ -16,4 +21,5 @@ while kill -0 $PID 2>/dev/null; do sleep 30; echo "$(ls full 2>/dev/null | wc -l
 N=$(ls full 2>/dev/null | wc -l)
 [ "$N" -ge 336 ] || { grep -a -A12 Traceback render.log | tail -30; fail "render stopped at $N/336"; }
 chmod +x post.sh && ./post.sh /content/agent_film.mp4 || fail "ffmpeg"
+[ -d /content/drive/MyDrive ] && cp /content/agent_film.mp4 /content/drive/MyDrive/bubo/agent_film.mp4 && echo "copied to Google Drive: MyDrive/bubo/agent_film.mp4"
 echo "DONE -> /content/agent_film.mp4"
