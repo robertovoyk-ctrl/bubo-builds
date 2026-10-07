@@ -152,7 +152,7 @@ import json as _json
 META = _json.load(open(os.path.join(HERE, 'panel.json')))
 pimg = bpy.data.images.load(os.path.join(HERE, 'panel.png')); pimg.colorspace_settings.name = 'Non-Color'
 PW, PH = pimg.size
-CHAR = 0.076; RHW = CHAR * 40 / 22                       # one character / one row in wall units
+CHAR = 0.076 * 1.6; RHW = CHAR * 40 / 22      # big readable text, so the spider reads small                       # one character / one row in wall units
 PANEL_W, PANEL_H = CHAR * PW / 22, RHW * META['rows']
 PX0, PZ1 = -27.5 * CHAR, 7.85                              # column 28 sits on x = 0
 def row_z(i): return PZ1 - (i + 0.5) * RHW
@@ -405,8 +405,9 @@ def frame_from(p0, p1, x_hint):
 NW = np.array([0.0, -1.0, 0.0])         # wall normal, toward camera
 BODY_H = 0.30
 TS = 0.40                                # step cycle
-PATH = [(0.0, 0.0, 11.6, 0.0), (2.0, 0.0, 8.9, 0.0), (4.4, 0.06, 6.75, 0.04), (7.0, -0.05, 4.62, -0.08),
-        (8.7, -0.1, 3.5, -0.15), (9.4, -0.12, 3.15, -0.2), (10.6, -0.15, 2.5, -0.25), (14.0, -0.15, 2.45, -0.25)]
+SX = -4.1                                # the spider walks down the left margin, beside the lines
+PATH = [(0.0, SX, 11.2, 0.0), (2.0, SX, 8.7, 0.0), (5.0, SX + 0.05, 5.3, 0.03), (7.5, SX - 0.05, 3.0, -0.03),
+        (9.4, SX, 1.05, 0.0), (14.0, SX, 1.0, 0.0)]
 JUMP0 = 13.15
 def path(t):
     t = min(max(t, PATH[0][0]), PATH[-1][0])
@@ -469,13 +470,13 @@ cam = bpy.data.objects.new('cam', bpy.data.cameras.new('cam')); link(cam); sc.ca
 cam.data.sensor_fit = 'VERTICAL'; cam.data.sensor_height = 36.0
 cam.data.dof.use_dof = True; cam.data.dof.aperture_blades = 7
 KEYS = [  # t, camera offset from the spider, look-at offset, lens(vertical), fstop
-    (0.0, (0.25, -5.4, 0.4), (0.0, 0.0, -0.3), 30, 9.0),
-    (2.4, (0.2, -4.9, 0.3), (0.0, 0.0, -0.4), 31, 8.0),
-    (5.0, (1.6, -4.0, 0.6), (0.0, -0.1, -0.5), 32, 7.0),
-    (6.6, (2.4, -2.6, 0.5), (0.0, -0.2, -0.4), 33, 6.5),
-    (8.4, (0.4, -3.6, -0.2), (0.0, -0.1, -0.2), 32, 7.0),
-    (9.6, (0.2, -4.6, 0.9), (0.0, 0.0, 0.5), 28, 9.0),
-    (11.6, (0.3, -6.2, 1.6), (0.0, 0.0, 1.2), 25, 9.0),
+    (0.0, (3.4, -10.4, -0.4), (3.4, 0.0, -1.0), 30, 11.0),
+    (2.4, (1.9, -8.2, 0.3), (1.8, 0.0, -0.5), 30, 10.0),
+    (5.0, (3.0, -7.3, 1.0), (1.8, -0.1, -0.6), 32, 9.0),
+    (6.6, (4.3, -6.1, 0.6), (1.9, -0.2, -0.5), 32, 9.0),
+    (8.4, (2.0, -7.9, -0.3), (1.9, -0.1, -0.3), 30, 10.0),
+    (9.6, (3.5, -10.0, 1.8), (3.5, 0.0, 2.2), 28, 11.0),
+    (11.6, (3.5, -10.8, 2.4), (3.5, 0.0, 2.6), 27, 11.0),
     (12.7, (0.02, -1.45, -1.39), (0.0, 0.0, -0.26), 28, 5.0),
     (13.25, (0.01, -1.05, -1.09), (0.0, 0.0, -0.24), 30, 4.5),
     (14.0, (0.01, -1.02, -1.06), (0.0, 0.0, -0.24), 30, 4.5)]
@@ -566,7 +567,7 @@ def set_time(t):
         q = [float(x) for x in os.environ['CAM'].split(',')]
         camp, tgt = tuple(q[0:3]), tuple(q[3:6]); cam.location = camp
         cam.rotation_euler = (Vector(tgt) - Vector(camp)).to_track_quat('-Z', 'Y').to_euler(); cam.data.lens = q[6]; cam.data.dof.aperture_fstop = q[7]
-    focus = c if t > 2.4 else np.array([0.0, 0.0, 2.3])
+    focus = c if t > 2.4 else np.array([SX, 0.0, 8.0])
     cam.data.dof.focus_distance = float(np.linalg.norm(np.array(camp) - focus))
     # blackout at the very end
     sc.view_settings.exposure = -0.9 - 10.0 * smooth01((t - 13.62) / 0.12)

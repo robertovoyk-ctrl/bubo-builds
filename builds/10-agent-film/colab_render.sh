@@ -10,7 +10,7 @@ fi
 pip -q install soundfile >/dev/null 2>&1
 python3 audio_soft.py || fail "audio"
 [ -f card.png ] && [ -f title.png ] || fail "card.png or title.png missing"
-BUBO_GPU=1 /content/blender/blender -b --python film.py -- full 0:336:1 ${RES:-720} ${SPP:-20} frames > render.log 2>&1 &
+BUBO_GPU=1 /content/blender/blender -b --python film.py -- full 0:336:1 ${RES:-1080} ${SPP:-32} frames > render.log 2>&1 &
 PID=$!
 while kill -0 $PID 2>/dev/null; do sleep 30; echo "$(ls full 2>/dev/null | wc -l)/336 frames  $(grep -a -m1 '^GPU' render.log)  last: $(grep -a DONE render.log | tail -1)"; done
 N=$(ls full 2>/dev/null | wc -l)

@@ -4,7 +4,7 @@ import numpy as np, soundfile as sf
 from scipy.signal import butter, sosfilt, fftconvolve
 SR = 48000; DUR = 16.5; N = int(SR * DUR); rng = np.random.RandomState(8)
 t = np.arange(N) / SR; mix = np.zeros((N, 2))
-TS = 0.40; DET = [4.71, 5.55, 6.4, 7.93]; FIXES = []; CLEAN = 10.4; JUMP0 = 13.15; END = 13.62
+TS = 0.40; DET = [4.72, 5.85, 7.05, 8.71]; FIXES = []; CLEAN = 10.4; JUMP0 = 13.15; END = 13.62
 def ss(a, b, x): u = np.clip((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u)
 def lp(x, f, o=2): return sosfilt(butter(o, f, 'low', fs=SR, output='sos'), x)
 def put(sig, at, pan=0.0, g=1.0):
