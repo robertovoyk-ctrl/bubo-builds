@@ -1,0 +1,19 @@
+I scanned every file on disk and the full git history (`git log -p --all`). Here are the leaked secrets I found:
+
+## Secrets found
+
+| # | File | Commit | Key type | First 6 chars | Status |
+|---|------|--------|----------|---------------|--------|
+| 1 | app/settings.py | 3c7c451 "add settings" | OpenAI API key | `sk-pro` | **Only in history** — removed in 5fa3118, now reads from env var |
+| 2 | db/connect.py | 52fc817 "add db config" | Database password | `hCMu48` | **Still in code** — hardcoded on the main branch right now |
+| 3 | app/payments.py | cc4f9ac "add payments" | Stripe live secret key | `sk_liv` | **Still in code** — hardcoded on the main branch right now |
+
+## What to rotate first
+
+1. **Stripe key (sk_liv…)** — rotate immediately. A live Stripe secret key lets anyone charge cards and issue refunds on your account. Remove it from the file, store it in an environment variable or secrets manager, and regenerate the key in the Stripe dashboard.
+
+2. **Database password (hCMu48…)** — rotate next. Anyone who can read this repo has your production database credentials. Move it to an env var and change the password in your database.
+
+3. **OpenAI key (sk-pro…)** — still rotate it even though it was removed from the file. Deleting a file does not erase it from git history. Anyone who clones this repo can recover the key with `git log -p`. Regenerate the key in the OpenAI dashboard.
+
+After rotating, consider running `git filter-repo` or BFG Repo Cleaner to purge the old commits that contain plaintext secrets.

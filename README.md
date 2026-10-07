@@ -17,6 +17,7 @@ and the sound is synthesized or played from open samples.
 | 07 | [keyspider film](builds/07-keyspider-film) | The spider walks down real code and lights up the secrets keyspider found in it | Blender (bpy), Python, numpy audio |
 | 08 | [keyspider guard](builds/08-keyspider-guard) | The spider stops a commit with two secrets in it, they move to env, the commit goes through | Blender (bpy), Python, numpy audio |
 | 09 | [agent prompt](builds/09-agent-prompt) | A prompt that makes your coding agent audit a repo for leaked keys, deleted ones included | prompt, Python (PIL) card |
+| 10 | [agent film](builds/10-agent-film) | The spider walks down Claude Code's real answer and lights up every leaked key it found | Blender (bpy), Python, numpy audio |
 
 ## How every build works
 

@@ -1,0 +1,26 @@
+{
+ "rows": 30,
+ "cols": 92,
+ "findings": [
+  {
+   "row": 10,
+   "k": 1,
+   "label": "\u25b2 deleted, but still in git history"
+  },
+  {
+   "row": 15,
+   "k": 2,
+   "label": "\u25b2 still in the code right now"
+  },
+  {
+   "row": 20,
+   "k": 3,
+   "label": "\u25b2 still in the code right now"
+  },
+  {
+   "row": 28,
+   "k": 4,
+   "label": ""
+  }
+ ]
+}
