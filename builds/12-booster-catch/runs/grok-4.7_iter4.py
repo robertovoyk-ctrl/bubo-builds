@@ -1,0 +1,1 @@
+The burns started near 4 km and the tanks were empty on the way down, so the commit logic is lighting far too early. I’ll reproduce that decision and retune the suicide-burn trigger.

@@ -18,6 +18,8 @@ and the sound is synthesized or played from open samples.
 | 08 | [keyspider guard](builds/08-keyspider-guard) | The spider stops a commit with two secrets in it, they move to env, the commit goes through | Blender (bpy), Python, numpy audio |
 | 09 | [agent prompt](builds/09-agent-prompt) | A prompt that makes your coding agent audit a repo for leaked keys, deleted ones included | prompt, Python (PIL) card |
 | 10 | [agent film](builds/10-agent-film) | The spider walks down Claude Code's real answer and lights up every leaked key it found | Blender (bpy), Python, numpy audio |
+| 11 | [prompt film](builds/11-prompt-film) | The spider crawls down the leaked-keys prompt and lights up each sentence | Blender (bpy), Python, numpy audio |
+| 12 | [Grok catches a rocket](builds/12-booster-catch) | Grok flies a falling booster live, fails, then writes its own flight computer and catches it. Every frame comes from the simulator | Python, xAI API, Blender (bpy), numpy audio |
 
 ## How every build works
 

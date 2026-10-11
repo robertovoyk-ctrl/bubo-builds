@@ -1,0 +1,954 @@
+{
+"model": "grok-4.7",
+"mode": "frozen",
+"scenario": "nominal",
+"seed": 0,
+"result": "aborted to sea",
+"steps": [
+{
+"t": 0.0,
+"tel": {
+"t": 0.0,
+"altitude_m": 7000.0,
+"distance_to_tower_m": 418.9,
+"vertical_speed_ms": -300.0,
+"sideways_speed_ms": -3.5,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Coast; fins close lateral offset"
+},
+"applies_at": 0.0
+},
+{
+"t": 1.0000000000000004,
+"tel": {
+"t": 1.0,
+"altitude_m": 6698.3,
+"distance_to_tower_m": 414.0,
+"vertical_speed_ms": -303.3,
+"sideways_speed_ms": -6.3,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Still coasting; fins fight drift"
+},
+"applies_at": 1.0000000000000004
+},
+{
+"t": 2.0000000000000013,
+"tel": {
+"t": 2.0,
+"altitude_m": 6393.5,
+"distance_to_tower_m": 406.2,
+"vertical_speed_ms": -306.2,
+"sideways_speed_ms": -9.1,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Coast; max fins toward tower"
+},
+"applies_at": 2.0000000000000013
+},
+{
+"t": 3.000000000000002,
+"tel": {
+"t": 3.0,
+"altitude_m": 6085.9,
+"distance_to_tower_m": 395.7,
+"vertical_speed_ms": -308.8,
+"sideways_speed_ms": -11.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Closing range; keep fin authority"
+},
+"applies_at": 3.000000000000002
+},
+{
+"t": 4.000000000000003,
+"tel": {
+"t": 4.0,
+"altitude_m": 5776.0,
+"distance_to_tower_m": 382.5,
+"vertical_speed_ms": -310.9,
+"sideways_speed_ms": -14.5,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Fast lateral close; hold fins"
+},
+"applies_at": 4.000000000000003
+},
+{
+"t": 4.999999999999981,
+"tel": {
+"t": 5.0,
+"altitude_m": 5464.1,
+"distance_to_tower_m": 366.6,
+"vertical_speed_ms": -312.7,
+"sideways_speed_ms": -17.2,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1.0,
+"abort": false,
+"why": "Still high; continue lateral close"
+},
+"applies_at": 4.999999999999981
+},
+{
+"t": 5.99999999999996,
+"tel": {
+"t": 6.0,
+"altitude_m": 5150.6,
+"distance_to_tower_m": 348.1,
+"vertical_speed_ms": -314.1,
+"sideways_speed_ms": -19.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.8,
+"abort": false,
+"why": "Ease fins; lateral speed high"
+},
+"applies_at": 5.99999999999996
+},
+{
+"t": 6.999999999999939,
+"tel": {
+"t": 7.0,
+"altitude_m": 4836.0,
+"distance_to_tower_m": 327.3,
+"vertical_speed_ms": -315.1,
+"sideways_speed_ms": -21.7,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.5,
+"abort": false,
+"why": "Reduce closing rate gradually"
+},
+"applies_at": 6.999999999999939
+},
+{
+"t": 7.999999999999917,
+"tel": {
+"t": 8.0,
+"altitude_m": 4520.6,
+"distance_to_tower_m": 305.1,
+"vertical_speed_ms": -315.7,
+"sideways_speed_ms": -22.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.3,
+"abort": false,
+"why": "Hold moderate lateral correction"
+},
+"applies_at": 7.999999999999917
+},
+{
+"t": 8.999999999999897,
+"tel": {
+"t": 9.0,
+"altitude_m": 4204.7,
+"distance_to_tower_m": 282.4,
+"vertical_speed_ms": -315.9,
+"sideways_speed_ms": -22.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.2,
+"abort": false,
+"why": "Maintain slow lateral approach"
+},
+"applies_at": 8.999999999999897
+},
+{
+"t": 9.999999999999876,
+"tel": {
+"t": 10.0,
+"altitude_m": 3888.8,
+"distance_to_tower_m": 259.6,
+"vertical_speed_ms": -315.8,
+"sideways_speed_ms": -22.7,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.15,
+"abort": false,
+"why": "Fine-tune closing rate"
+},
+"applies_at": 9.999999999999876
+},
+{
+"t": 10.999999999999854,
+"tel": {
+"t": 11.0,
+"altitude_m": 3573.2,
+"distance_to_tower_m": 237.1,
+"vertical_speed_ms": -315.3,
+"sideways_speed_ms": -22.3,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.1,
+"abort": false,
+"why": "Ease lateral correction"
+},
+"applies_at": 10.999999999999854
+},
+{
+"t": 11.999999999999833,
+"tel": {
+"t": 12.0,
+"altitude_m": 3258.3,
+"distance_to_tower_m": 215.1,
+"vertical_speed_ms": -314.5,
+"sideways_speed_ms": -21.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.08,
+"abort": false,
+"why": "Continue gradual correction"
+},
+"applies_at": 11.999999999999833
+},
+{
+"t": 12.999999999999812,
+"tel": {
+"t": 13.0,
+"altitude_m": 2944.4,
+"distance_to_tower_m": 193.5,
+"vertical_speed_ms": -313.3,
+"sideways_speed_ms": -21.4,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.05,
+"abort": false,
+"why": "Reduce fin correction"
+},
+"applies_at": 12.999999999999812
+},
+{
+"t": 13.99999999999979,
+"tel": {
+"t": 14.0,
+"altitude_m": 2631.8,
+"distance_to_tower_m": 172.4,
+"vertical_speed_ms": -311.9,
+"sideways_speed_ms": -20.9,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.03,
+"abort": false,
+"why": "Almost correct lateral rate"
+},
+"applies_at": 13.99999999999979
+},
+{
+"t": 14.999999999999769,
+"tel": {
+"t": 15.0,
+"altitude_m": 2320.8,
+"distance_to_tower_m": 151.8,
+"vertical_speed_ms": -310.1,
+"sideways_speed_ms": -20.3,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0.02,
+"abort": false,
+"why": "Hold near intercept path"
+},
+"applies_at": 14.999999999999769
+},
+{
+"t": 15.999999999999748,
+"tel": {
+"t": 16.0,
+"altitude_m": 2011.7,
+"distance_to_tower_m": 131.7,
+"vertical_speed_ms": -308.0,
+"sideways_speed_ms": -19.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -0.5,
+"abort": false,
+"why": "Trim lateral rate toward tower"
+},
+"applies_at": 15.999999999999748
+},
+{
+"t": 16.999999999999726,
+"tel": {
+"t": 17.0,
+"altitude_m": 1704.9,
+"distance_to_tower_m": 113.1,
+"vertical_speed_ms": -305.7,
+"sideways_speed_ms": -17.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -1,
+"abort": false,
+"why": "Need more closing speed"
+},
+"applies_at": 16.999999999999726
+},
+{
+"t": 17.999999999999705,
+"tel": {
+"t": 18.0,
+"altitude_m": 1400.4,
+"distance_to_tower_m": 97.4,
+"vertical_speed_ms": -303.2,
+"sideways_speed_ms": -13.9,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -1,
+"abort": false,
+"why": "Still short of intercept rate"
+},
+"applies_at": 17.999999999999705
+},
+{
+"t": 18.2599999999997,
+"tel": {
+"t": 18.3,
+"altitude_m": 1321.7,
+"distance_to_tower_m": 93.9,
+"vertical_speed_ms": -302.5,
+"sideways_speed_ms": -13.0,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 13,
+"throttle": 1.0,
+"tilt": 0,
+"fins": 0,
+"abort": false,
+"why": "Light engines for landing burn"
+},
+"applies_at": 18.2599999999997
+},
+{
+"t": 18.519999999999694,
+"tel": {
+"t": 18.5,
+"altitude_m": 1243.2,
+"distance_to_tower_m": 90.5,
+"vertical_speed_ms": -301.7,
+"sideways_speed_ms": -12.9,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 13,
+"throttle": 1.0,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Cancel early light, close faster"
+},
+"applies_at": 18.519999999999694
+},
+{
+"t": 18.77999999999969,
+"tel": {
+"t": 18.8,
+"altitude_m": 1164.8,
+"distance_to_tower_m": 87.1,
+"vertical_speed_ms": -301.0,
+"sideways_speed_ms": -13.5,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Closing too slowly, keep falling"
+},
+"applies_at": 18.77999999999969
+},
+{
+"t": 19.039999999999683,
+"tel": {
+"t": 19.0,
+"altitude_m": 1086.7,
+"distance_to_tower_m": 83.5,
+"vertical_speed_ms": -300.3,
+"sideways_speed_ms": -14.1,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Need more closing speed"
+},
+"applies_at": 19.039999999999683
+},
+{
+"t": 19.299999999999677,
+"tel": {
+"t": 19.3,
+"altitude_m": 1008.7,
+"distance_to_tower_m": 79.8,
+"vertical_speed_ms": -299.5,
+"sideways_speed_ms": -14.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Keep closing before burn"
+},
+"applies_at": 19.299999999999677
+},
+{
+"t": 19.559999999999672,
+"tel": {
+"t": 19.6,
+"altitude_m": 931.0,
+"distance_to_tower_m": 75.9,
+"vertical_speed_ms": -298.7,
+"sideways_speed_ms": -15.2,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Still high, close harder"
+},
+"applies_at": 19.559999999999672
+},
+{
+"t": 19.819999999999666,
+"tel": {
+"t": 19.8,
+"altitude_m": 853.4,
+"distance_to_tower_m": 71.8,
+"vertical_speed_ms": -297.9,
+"sideways_speed_ms": -15.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Closing well, hold fins"
+},
+"applies_at": 19.819999999999666
+},
+{
+"t": 20.07999999999966,
+"tel": {
+"t": 20.1,
+"altitude_m": 776.0,
+"distance_to_tower_m": 67.7,
+"vertical_speed_ms": -297.1,
+"sideways_speed_ms": -16.4,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Continue lateral intercept"
+},
+"applies_at": 20.07999999999966
+},
+{
+"t": 20.339999999999655,
+"tel": {
+"t": 20.3,
+"altitude_m": 698.9,
+"distance_to_tower_m": 63.3,
+"vertical_speed_ms": -296.3,
+"sideways_speed_ms": -17.0,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Still high, keep closing"
+},
+"applies_at": 20.339999999999655
+},
+{
+"t": 20.59999999999965,
+"tel": {
+"t": 20.6,
+"altitude_m": 622.0,
+"distance_to_tower_m": 58.8,
+"vertical_speed_ms": -295.5,
+"sideways_speed_ms": -17.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Hold fins, closing nicely"
+},
+"applies_at": 20.59999999999965
+},
+{
+"t": 20.859999999999644,
+"tel": {
+"t": 20.9,
+"altitude_m": 545.3,
+"distance_to_tower_m": 54.2,
+"vertical_speed_ms": -294.7,
+"sideways_speed_ms": -18.2,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Keep closing before burn"
+},
+"applies_at": 20.859999999999644
+},
+{
+"t": 21.11999999999964,
+"tel": {
+"t": 21.1,
+"altitude_m": 468.8,
+"distance_to_tower_m": 49.4,
+"vertical_speed_ms": -293.8,
+"sideways_speed_ms": -18.7,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Almost time, keep closing"
+},
+"applies_at": 21.11999999999964
+},
+{
+"t": 21.379999999999633,
+"tel": {
+"t": 21.4,
+"altitude_m": 392.5,
+"distance_to_tower_m": 44.4,
+"vertical_speed_ms": -293.0,
+"sideways_speed_ms": -19.3,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Close enough, prepare burn"
+},
+"applies_at": 21.379999999999633
+},
+{
+"t": 21.639999999999628,
+"tel": {
+"t": 21.6,
+"altitude_m": 316.5,
+"distance_to_tower_m": 39.3,
+"vertical_speed_ms": -292.1,
+"sideways_speed_ms": -19.9,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 13,
+"throttle": 1.0,
+"tilt": 5,
+"fins": 0,
+"abort": false,
+"why": "Light all engines full"
+},
+"applies_at": 21.639999999999628
+},
+{
+"t": 21.899999999999622,
+"tel": {
+"t": 21.9,
+"altitude_m": 240.6,
+"distance_to_tower_m": 34.2,
+"vertical_speed_ms": -291.2,
+"sideways_speed_ms": -19.6,
+"tilt_deg": 2.6,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 13,
+"throttle": 1.0,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 13,
+"throttle": 1.0,
+"tilt": 8,
+"fins": 0,
+"abort": false,
+"why": "Spooling, lean into tower"
+},
+"applies_at": 21.899999999999622
+},
+{
+"t": 22.159999999999616,
+"tel": {
+"t": 22.2,
+"altitude_m": 165.1,
+"distance_to_tower_m": 29.1,
+"vertical_speed_ms": -290.3,
+"sideways_speed_ms": -19.4,
+"tilt_deg": 5.2,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 13,
+"throttle": 1.0,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 13,
+"throttle": 1.0,
+"tilt": -15,
+"fins": -1,
+"abort": true,
+"why": "Too low too fast, divert"
+},
+"applies_at": 22.159999999999616
+}
+]
+}

@@ -1,0 +1,225 @@
+{
+"model": "grok-4.7",
+"mode": "realtime",
+"scenario": "nominal",
+"seed": 0,
+"result": "aborted to sea",
+"steps": [
+{
+"t": 0.0,
+"tel": {
+"t": 0.0,
+"altitude_m": 7000.0,
+"distance_to_tower_m": 418.9,
+"vertical_speed_ms": -300.0,
+"sideways_speed_ms": -3.5,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Fins close lateral gap, coast"
+},
+"applies_at": 8.889011859893799
+},
+{
+"t": 8.899999999999899,
+"tel": {
+"t": 8.9,
+"altitude_m": 4236.1,
+"distance_to_tower_m": 390.8,
+"vertical_speed_ms": -316.0,
+"sideways_speed_ms": -3.0,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 1,
+"abort": false,
+"why": "Still high, keep finning inward"
+},
+"applies_at": 11.001006984710592
+},
+{
+"t": 11.019999999999854,
+"tel": {
+"t": 11.0,
+"altitude_m": 3566.5,
+"distance_to_tower_m": 378.2,
+"vertical_speed_ms": -315.4,
+"sideways_speed_ms": -8.8,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -1,
+"abort": false,
+"why": "Reverse fins, sideways speed too high"
+},
+"applies_at": 13.748733301162574
+},
+{
+"t": 13.759999999999796,
+"tel": {
+"t": 13.8,
+"altitude_m": 2705.9,
+"distance_to_tower_m": 344.1,
+"vertical_speed_ms": -312.4,
+"sideways_speed_ms": -15.9,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -1,
+"abort": false,
+"why": "Bleed excess inward speed with fins"
+},
+"applies_at": 15.099442968368326
+},
+{
+"t": 15.099999999999767,
+"tel": {
+"t": 15.1,
+"altitude_m": 2288.9,
+"distance_to_tower_m": 325.8,
+"vertical_speed_ms": -310.0,
+"sideways_speed_ms": -11.4,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": -1,
+"abort": false,
+"why": "Still closing too fast, hold fins"
+},
+"applies_at": 19.219662761688
+},
+{
+"t": 19.21999999999968,
+"tel": {
+"t": 19.2,
+"altitude_m": 1031.2,
+"distance_to_tower_m": 306.0,
+"vertical_speed_ms": -299.9,
+"sideways_speed_ms": 1.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 13,
+"throttle": 1.0,
+"tilt": 0,
+"fins": 0,
+"abort": false,
+"why": "Light all engines for landing burn"
+},
+"applies_at": 20.219752283095993
+},
+{
+"t": 20.219999999999658,
+"tel": {
+"t": 20.2,
+"altitude_m": 732.8,
+"distance_to_tower_m": 309.2,
+"vertical_speed_ms": -296.8,
+"sideways_speed_ms": 4.6,
+"tilt_deg": 0.0,
+"fuel_kg": 45000,
+"engines_running": 0,
+"engines_commanded": 0,
+"throttle": 0.4,
+"mass_kg": 245000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0,
+"abort": true,
+"why": "Too far and too late to catch"
+},
+"applies_at": 33.25876185417141
+},
+{
+"t": 33.2599999999996,
+"tel": {
+"t": 33.3,
+"altitude_m": 2123.6,
+"distance_to_tower_m": 354.8,
+"vertical_speed_ms": 173.0,
+"sideways_speed_ms": 2.5,
+"tilt_deg": 0.0,
+"fuel_kg": 0,
+"engines_running": 13,
+"engines_commanded": 13,
+"throttle": 1.0,
+"mass_kg": 200000,
+"tower_health": "OK",
+"wind_ms": -1.0
+},
+"cmd": {
+"engines": 0,
+"throttle": 0.4,
+"tilt": 0,
+"fins": 0,
+"abort": true,
+"why": "No fuel, far from tower, abort"
+},
+"applies_at": 36.38895703315695
+}
+]
+}
